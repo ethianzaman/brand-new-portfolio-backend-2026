@@ -1,0 +1,17 @@
+import { Router } from "express";
+import {
+  getServices,
+  createService,
+  updateService,
+  deleteService,
+} from "../controllers/service.controller";
+import { protect } from "../middleware/auth";
+
+const router = Router();
+
+router.get("", getServices);
+router.post("/create", createService);
+router.put("/:id", updateService);
+router.delete("/:id", deleteService);
+
+export default router;
