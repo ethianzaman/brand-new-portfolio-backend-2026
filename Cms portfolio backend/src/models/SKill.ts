@@ -104,6 +104,6 @@ const SkillCategorySchema = new Schema<ISkillCategory>(
 export const SkillCategory =
   mongoose.models.SkillCategory ||
   mongoose.model<ISkillCategory>(
-    'SkillCategory',
+    'Skills',
     SkillCategorySchema
   )

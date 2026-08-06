@@ -1,20 +1,27 @@
-
-import { Router } from 'express'
+import { Router } from "express";
 import {
-  getProjects, getProjectById,
-  createProject, updateProject, deleteProject,
-} from '../controllers/project.controller'
-import { protect } from '../middleware/auth'
+  getProjects,
+  getProjectById,
+  createProject,
+  updateProject,
+  deleteProject,
+  getAllProjects,
+} from "../controllers/project.controller";
+import { protect } from "../middleware/auth";
+import { upload } from "../middleware/uploadMiddleware";
 
-const router = Router()
+const router = Router();
 
 // Public
-router.get('/',    getProjects)
-router.get('/:id', getProjectById)
+router.get("/", getProjects);
+router.get("/all", getAllProjects);
+router.get("/:id", getProjectById);
 
 // Protected — dashboard only
-router.post  ('/',    protect, createProject)
-router.put   ('/:id', protect, updateProject)
-router.delete('/:id', protect, deleteProject)
+// router.post("/", createProject);
+router.post("/create", upload.single("image"), createProject);
+// router.put("/:id", updateProject);
+router.put("/:id", upload.single("image"), updateProject);
+router.delete("/:id", deleteProject);
 
-export default router
+export default router;
