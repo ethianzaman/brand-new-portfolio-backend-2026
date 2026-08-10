@@ -36,8 +36,6 @@ export async function updateHero(req: Request, res: Response): Promise<void> {
   try {
     let heroData = { ...req.body };
 
-    console.log("REQ BODY:", heroData);
-
     let finalImageUrl: string | undefined;
 
     // 1️⃣ File upload case (Cloudinary)
@@ -147,10 +145,6 @@ export async function updateExperience(
   try {
     const { id } = req.params;
     const updateData = req.body;
-
-    console.log("PARAM ID:", id);
-    console.log("REQ BODY:", updateData);
-
     // 1️⃣ Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({
@@ -334,10 +328,6 @@ export const updateEducation = async (
   try {
     const { id } = req.params;
     const updateData = req.body;
-
-    console.log("PARAM ID:", id);
-    console.log("REQ BODY:", updateData);
-
     // 1️⃣ Validate ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({

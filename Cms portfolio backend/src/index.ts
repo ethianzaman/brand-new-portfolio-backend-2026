@@ -12,6 +12,7 @@ import skillRoutes   from './routes/skill.routes'
 import serviceRoutes from './routes/service.routes'
 import aboutRoutes   from './routes/about.routes'
 import contactRoutes from './routes/contact.routes'
+import blogRoutes    from './routes/blog.routes'
 const app  = express()
 app.use(express.json());
 const PORT = process.env.PORT ?? 5000
@@ -29,6 +30,7 @@ app.use('/api/skills',   skillRoutes)
 app.use('/api/services', serviceRoutes)
 app.use('/api/about',    aboutRoutes)
 app.use('/api/contact',  contactRoutes)
+app.use('/api/blogs',    blogRoutes)
 
 // ── Health check ──────────────────────────────────────────────
 app.get('/api/health', (_, res) => {
