@@ -1,50 +1,128 @@
+// import mongoose, { Schema, model } from "mongoose";
+
+// const SocialSchema = new Schema(
+//   {
+//     label: { type: String, required: true, trim: true, maxlength: 50 },
+//     href: { type: String, required: true, trim: true, maxlength: 500 },
+//   },
+//   { _id: true },
+// );
+
+// const StatsSchema = new Schema(
+//   {
+//     value: { type: String, required: true, trim: true, maxlength: 50 },
+//     label: { type: String, required: true, trim: true, maxlength: 100 },
+//   },
+//   { _id: true },
+// );
+
+// const homeHeroSchema = new Schema(
+//   {
+//     hero: {
+//       name: { type: String, default: "Your Name", trim: true, maxlength: 100 },
+//       title: {
+//         type: String,
+//         default: "Full Stack Developer",
+//         trim: true,
+//         maxlength: 200,
+//       },
+//       titles: {
+//         type: [String],
+//         default: [
+//           "Django & Next.js Specialist",
+//           "Schema & DB Architect",
+//           "System Design Enthusiast",
+//           "Full Stack Web Engineer",
+//         ],
+//         validate: {
+//           validator: (arr: string[]) => arr.length <= 30,
+//           message: "Maximum 30 titles allowed",
+//         },
+//       },
+//       bio: { type: String, default: "Your bio here.", trim: true },
+//       image: { type: String, default: null },
+//       resumeUrl: { type: String, default: "/resume.pdf" },
+//       socials: { type: [SocialSchema], default: [] },
+//     },
+//     stats: { type: [StatsSchema], default: [] },
+//   },
+//   { timestamps: true },
+// );
+
+// export const HomeHero = model("HomeHero", homeHeroSchema);
+
+// export const DEFAULT_HOME_HERO = {
+//   name: "Your Name",
+//   title: "Full Stack Developer",
+//   titles: [
+//     "Django & Next.js Specialist",
+//     "Schema & DB Architect",
+//     "System Design Enthusiast",
+//     "Full Stack Web Engineer",
+//   ],
+//   bio: "Your bio here.",
+//   image: null,
+//   resumeUrl: "/resume.pdf",
+//   socials: [],
+//   stats: [],
+// };
+
+
 import mongoose, { Schema, model } from "mongoose";
 
-const SkillItemSchema = new Schema({
-  name: String,
-});
+const SocialSchema = new Schema(
+  {
+    label: { type: String, required: true, trim: true, maxlength: 50 },
+    href: { type: String, required: true, trim: true, maxlength: 500 },
+  },
+  { _id: true },
+);
 
-const SkillCategorySchema = new Schema({
-  label: String,
-  icon: String,
-  items: [SkillItemSchema],
-});
-
-const StatsSchema = new Schema({
-  value: String,
-  label: String,
-});
-
-const SocialSchema = new Schema({
-  href: String,
-  label: String,
-});
+const StatsSchema = new Schema(
+  {
+    value: { type: String, required: true, trim: true, maxlength: 50 },
+    label: { type: String, required: true, trim: true, maxlength: 100 },
+  },
+  { _id: true },
+);
 
 const homeHeroSchema = new Schema(
   {
     hero: {
-      name: String,
-      title: String,
-      subtitle: String,
-      workStatus: String,
+      name: { type: String, default: "Your Name", trim: true, maxlength: 100 },
+      title: {
+        type: String,
+        default: "Full Stack Developer",
+        trim: true,
+        maxlength: 200,
+      },
+      titles: {
+        type: [String],
+        default: [],
+        validate: {
+          validator: (arr: string[]) => arr.length <= 30,
+          message: "Maximum 30 titles allowed",
+        },
+      },
+      bio: { type: String, default: "Your bio here.", trim: true },
       image: { type: String, default: null },
       resumeUrl: { type: String, default: "/resume.pdf" },
-      video: { type: String, default: null },
+      socials: { type: [SocialSchema], default: [] },
     },
-
-    about: {
-      description: [String],
-      location: String,
-      experience: String,
-    },
-
-    skills: [SkillCategorySchema],
-
-    stats: [StatsSchema],
-
-    socials: [SocialSchema],
+    stats: { type: [StatsSchema], default: [] },
   },
   { timestamps: true },
 );
 
 export const HomeHero = model("HomeHero", homeHeroSchema);
+
+export const DEFAULT_HOME_HERO = {
+  name: "Your Name",
+  title: "Full Stack Developer",
+  titles: [],
+  bio: "Your bio here.",
+  image: null,
+  resumeUrl: "/resume.pdf",
+  socials: [],
+  stats: [],
+};

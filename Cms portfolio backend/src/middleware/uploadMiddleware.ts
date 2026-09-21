@@ -34,6 +34,82 @@ export const uploadToCloudinary = (
   });
 };
 
+// export const uploadResumeToCloudinary = (
+//   fileBuffer: Buffer,
+//   folder: string,
+// ): Promise<string> => {
+//   return new Promise((resolve, reject) => {
+//     const publicId = `resume_${Date.now()}.pdf`;
+
+//     const uploadStream = cloudinary.uploader.upload_stream(
+//       {
+//         folder,
+//         resource_type: "raw",
+//         public_id: publicId,
+//         overwrite: false,
+//       },
+//       (error, result) => {
+//         if (error) {
+//           console.error("❌ Resume Cloudinary upload failed:", error);
+//           return reject(error);
+//         }
+
+//         if (!result?.secure_url) {
+//           return reject(
+//             new Error("Resume upload failed: No secure URL returned"),
+//           );
+//         }
+
+//         console.log("✅ Resume uploaded successfully");
+//         console.log("📄 URL:", result.secure_url);
+//         console.log("🆔 Public ID:", result.public_id);
+//         console.log("📦 Resource Type:", result.resource_type);
+
+//         resolve(result.secure_url);
+//       },
+//     );
+
+//     uploadStream.end(fileBuffer);
+//   });
+// };
+
+
+export const uploadResumeToCloudinary = (
+  fileBuffer: Buffer,
+  folder: string,
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        resource_type: "image",
+        format: "pdf",
+        use_filename: true,
+        unique_filename: true,
+      },
+      (error, result) => {
+        if (error) {
+          console.error("❌ Resume upload failed:", error);
+          return reject(error);
+        }
+
+        if (result?.secure_url) {
+          console.log("✅ Resume uploaded:", result.secure_url);
+          console.log("Public ID:", result.public_id);
+          console.log("Resource Type:", result.resource_type);
+          console.log("Format:", result.format);
+
+          return resolve(result.secure_url);
+        }
+
+        reject(new Error("Resume upload failed"));
+      },
+    );
+
+    uploadStream.end(fileBuffer);
+  });
+};
+
 /**
  * Check Cloudinary URL
  */
@@ -64,7 +140,6 @@ export function getPublicId(url: string): string | null {
   }
 }
 
-
 export async function deleteFromCloudinary(url: string): Promise<void> {
   try {
     if (!isCloudinaryUrl(url)) return;
@@ -76,5 +151,71 @@ export async function deleteFromCloudinary(url: string): Promise<void> {
     await cloudinary.uploader.destroy(publicId);
   } catch (err) {
     console.error("Cloudinary delete failed:", err);
+  }
+}
+
+// export async function deleteResumeFromCloudinary(
+//   url: string,
+// ): Promise<void> {
+//   try {
+//     if (!isCloudinaryUrl(url)) return;
+
+//     const uploadIndex = url.indexOf("/upload/");
+
+//     if (uploadIndex === -1) return;
+
+//     let publicId = url.substring(
+//       uploadIndex + "/upload/".length,
+//     );
+
+//     // Remove version
+//     publicId = publicId.replace(/^v\d+\//, "");
+
+//     console.log("🗑️ Deleting old resume:", publicId);
+
+//     await cloudinary.uploader.destroy(publicId, {
+//       resource_type: "raw",
+//       type: "upload",
+//     });
+
+//     console.log("✅ Old resume deleted:", publicId);
+//   } catch (error) {
+//     console.error(
+//       "⚠️ Resume delete failed:",
+//       error,
+//     );
+//   }
+// }
+
+export async function deleteResumeFromCloudinary(
+  url: string,
+): Promise<void> {
+  try {
+    if (!isCloudinaryUrl(url)) return;
+
+    const uploadIndex = url.indexOf("/upload/");
+    if (uploadIndex === -1) return;
+
+    let publicId = url.substring(
+      uploadIndex + "/upload/".length,
+    );
+
+    publicId = publicId.replace(/^v\d+\//, "");
+    publicId = publicId.replace(/\.[^/.]+$/, "");
+
+    const resourceType = url.includes("/raw/upload/")
+      ? "raw"
+      : "image";
+
+    await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType,
+    });
+
+    console.log(
+      `🗑️ Old resume deleted (${resourceType}):`,
+      publicId,
+    );
+  } catch (error) {
+    console.error("⚠️ Resume delete failed:", error);
   }
 }
