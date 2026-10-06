@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Service } from "../models/Service";
+import { publishChange } from "../lib/publish";
 
 
 export async function getServices(req: Request, res: Response): Promise<void> {
@@ -34,7 +35,7 @@ export async function createService(
     });
   } catch (error) {
     console.error("[CREATE SERVICE ERROR]", error);
-
+    await publishChange("services");
     res.status(500).json({
       success: false,
       message: "Failed to create service",
@@ -59,6 +60,7 @@ export async function updateService(
       });
       return;
     }
+    await publishChange("services");
     res.status(200).json({
       success: true,
       service,
@@ -87,6 +89,8 @@ export async function deleteService(
 
       return;
     }
+
+    await publishChange("services");
     res.status(200).json({
       success: true,
       message: "Service deleted successfully",

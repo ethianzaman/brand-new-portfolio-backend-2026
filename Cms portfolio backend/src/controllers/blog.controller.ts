@@ -4,6 +4,7 @@ import {
   deleteFromCloudinary,
   uploadToCloudinary,
 } from "../middleware/uploadMiddleware";
+import { publishChange } from "../lib/publish";
 
 function generateSlug(title: string): string {
   return title
@@ -117,7 +118,7 @@ export async function createBlog(req: Request, res: Response): Promise<void> {
           ? [req.body.tags]
           : [],
     });
-
+    await publishChange("blogs");
     res.status(201).json({
       success: true,
       blog,
@@ -185,7 +186,7 @@ export async function updateBlog(req: Request, res: Response): Promise<void> {
       new: true,
       runValidators: true,
     });
-
+    await publishChange("blogs");
     res.status(200).json({
       success: true,
       blog: updatedBlog,
@@ -217,6 +218,7 @@ export async function deleteBlog(req: Request, res: Response): Promise<void> {
 
     await blog.deleteOne();
 
+    await publishChange("blogs");
     res.status(200).json({
       success: true,
       message: "Blog deleted successfully",

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Contact } from "../models/Contact";
 import mongoose from "mongoose";
+import { publishChange } from "../lib/publish";
 
 
 export async function getContact(req: Request, res: Response): Promise<void> {
@@ -34,6 +35,7 @@ export async function updateInfo(req: Request, res: Response): Promise<void> {
       { $set: { info: req.body } },
       { new: true, upsert: true },
     );
+    await publishChange("contact");
     res.status(200).json({ success: true, info: contact.info });
   } catch (err: any) {
     res.status(400).json({ success: false, message: err.message });
@@ -50,6 +52,7 @@ export async function createFAQ(req: Request, res: Response): Promise<void> {
       { $push: { faqs: faq } },
       { new: true, upsert: true },
     );
+    await publishChange("contact");
     res.status(201).json({ success: true, faq });
   } catch (err: any) {
     res.status(400).json({ success: false, message: err.message });
@@ -86,7 +89,7 @@ export async function updateFAQ(req: Request, res: Response): Promise<void> {
     const updated = contact.faqs.find(
       (faq: any) => faq._id.toString() === req.params.id,
     );
-
+    await publishChange("contact");
     res.status(200).json({
       success: true,
       faq: updated,
@@ -120,6 +123,7 @@ export async function deleteFAQ(req: Request, res: Response): Promise<void> {
       });
       return;
     }
+    await publishChange("contact");
 
     res.status(200).json({
       success: true,

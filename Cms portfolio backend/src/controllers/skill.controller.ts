@@ -8,6 +8,7 @@ import {
   uploadToCloudinary,
 } from "../middleware/uploadMiddleware";
 import { v2 as cloudinary } from "cloudinary";
+import { publishChange } from "../lib/publish";
 
 // GET /api/skills — public
 export async function getSkills(req: Request, res: Response): Promise<void> {
@@ -62,6 +63,8 @@ export async function createCategory(
       skills: [],
     });
 
+    await publishChange("skills");
+
     res.status(201).json({
       success: true,
       message: "Category created successfully.",
@@ -102,6 +105,7 @@ export async function updateCategory(
       },
     );
 
+
     if (!category) {
       res.status(404).json({
         success: false,
@@ -109,6 +113,8 @@ export async function updateCategory(
       });
       return;
     }
+
+    await publishChange("skills");
 
     res.status(200).json({
       success: true,
@@ -148,6 +154,8 @@ export async function deleteCategory(
       });
       return;
     }
+
+    await publishChange("skills");
 
     res.status(200).json({
       success: true,
@@ -240,6 +248,7 @@ export async function addSkill(req: Request, res: Response): Promise<void> {
     });
 
     await category.save();
+    await publishChange("skills");
 
     res.status(201).json({
       success: true,
@@ -373,6 +382,7 @@ export async function updateSkill(req: Request, res: Response): Promise<void> {
 
       await sourceCategory.save();
       await destinationCategory.save();
+      await publishChange("skills");
 
       res.status(200).json({
         success: true,
@@ -392,6 +402,7 @@ export async function updateSkill(req: Request, res: Response): Promise<void> {
     skill.icon = newIcon;
 
     await sourceCategory.save();
+    await publishChange("skills");
 
     res.status(200).json({
       success: true,
