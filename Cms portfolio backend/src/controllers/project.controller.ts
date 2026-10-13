@@ -75,6 +75,8 @@ export async function createProject(
       thumbnail,
     });
 
+    await publishChange("projects");
+
     res.status(201).json({
       success: true,
       project,
@@ -155,22 +157,6 @@ export async function updateProject(
   }
 }
 
-// DELETE /api/projects/:id — protected
-// export async function deleteProject(
-//   req: Request,
-//   res: Response,
-// ): Promise<void> {
-//   try {
-//     const project = await Project.findByIdAndDelete(req.params.id);
-//     if (!project) {
-//       res.status(404).json({ success: false, message: "Project not found" });
-//       return;
-//     }
-//     res.status(200).json({ success: true, message: "Project deleted" });
-//   } catch {
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// }
 
 export async function deleteProject(
   req: Request,
@@ -194,7 +180,7 @@ export async function deleteProject(
 
     // Delete project from MongoDB
     await project.deleteOne();
-
+    await publishChange("projects");
     res.status(200).json({
       success: true,
       message: "Project deleted successfully",

@@ -475,6 +475,7 @@ export async function deleteSkill(
     );
 
     await category.save();
+    await publishChange("skills");
 
     res.status(200).json({
       success: true,
