@@ -8,6 +8,7 @@ import {
   uploadToCloudinary,
 } from "../middleware/uploadMiddleware";
 import { cacheGet, cacheSet, cacheDelete } from "../utils/cache";
+import { publishChange } from "../lib/publish";
 
 const CACHE_KEY = "home:data";
 const MAX_SOCIALS = 20;
@@ -445,6 +446,12 @@ export async function updateHero(
 
     invalidate();
 
+
+    // Drop the frontend's "home" cache tag, then tell every open
+
+    // public tab to refresh. Best-effort: never fails this request.
+
+    await publishChange("home");
     // ======================================================
     // 12. RESPONSE
     // ======================================================
@@ -489,7 +496,6 @@ export async function updateHero(
 export async function replaceStats(req: Request, res: Response): Promise<void> {
   try {
     const { stats } = req.body ?? {};
-    console.log("replaceStats called with stats:", stats); // Debugging log
 
     if (!Array.isArray(stats)) {
       res
@@ -529,6 +535,12 @@ export async function replaceStats(req: Request, res: Response): Promise<void> {
 
     invalidate();
 
+
+    // Drop the frontend's "home" cache tag, then tell every open
+
+    // public tab to refresh. Best-effort: never fails this request.
+
+    await publishChange("home");
     res.status(200).json({
       success: true,
       stats: doc.stats.map((s) => ({
@@ -571,6 +583,12 @@ export async function createStat(req: Request, res: Response): Promise<void> {
 
     invalidate();
 
+
+    // Drop the frontend's "home" cache tag, then tell every open
+
+    // public tab to refresh. Best-effort: never fails this request.
+
+    await publishChange("home");
     const created = doc.stats[doc.stats.length - 1];
     res.status(201).json({
       success: true,
@@ -613,6 +631,12 @@ export async function updateStat(req: Request, res: Response): Promise<void> {
 
     invalidate();
 
+
+    // Drop the frontend's "home" cache tag, then tell every open
+
+    // public tab to refresh. Best-effort: never fails this request.
+
+    await publishChange("home");
     res.status(200).json({
       success: true,
       stat: { _id: stat._id, value: stat.value, label: stat.label },
@@ -647,6 +671,12 @@ export async function deleteStat(req: Request, res: Response): Promise<void> {
 
     invalidate();
 
+
+    // Drop the frontend's "home" cache tag, then tell every open
+
+    // public tab to refresh. Best-effort: never fails this request.
+
+    await publishChange("home");
     res
       .status(200)
       .json({ success: true, message: "Stat deleted successfully" });
@@ -688,6 +718,12 @@ export async function createSocial(req: Request, res: Response): Promise<void> {
 
     invalidate();
 
+
+    // Drop the frontend's "home" cache tag, then tell every open
+
+    // public tab to refresh. Best-effort: never fails this request.
+
+    await publishChange("home");
     const created = doc.hero.socials[doc.hero.socials.length - 1];
     res.status(201).json({
       success: true,
@@ -734,6 +770,12 @@ export async function updateSocial(req: Request, res: Response): Promise<void> {
 
     invalidate();
 
+
+    // Drop the frontend's "home" cache tag, then tell every open
+
+    // public tab to refresh. Best-effort: never fails this request.
+
+    await publishChange("home");
     res.status(200).json({
       success: true,
       social: { _id: social._id, label: social.label, href: social.href },
@@ -770,6 +812,12 @@ export async function deleteSocial(req: Request, res: Response): Promise<void> {
 
     invalidate();
 
+
+    // Drop the frontend's "home" cache tag, then tell every open
+
+    // public tab to refresh. Best-effort: never fails this request.
+
+    await publishChange("home");
     res
       .status(200)
       .json({ success: true, message: "Social deleted successfully" });

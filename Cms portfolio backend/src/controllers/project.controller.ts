@@ -4,6 +4,7 @@ import {
   deleteFromCloudinary,
   uploadToCloudinary,
 } from "../middleware/uploadMiddleware";
+import { publishChange } from "../lib/publish";
 
 // GET /api/projects — public, with pagination + filter
 export async function getProjects(req: Request, res: Response): Promise<void> {
@@ -139,6 +140,8 @@ export async function updateProject(
         runValidators: true,
       },
     );
+
+    await publishChange("projects");
 
     res.status(200).json({
       success: true,

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { About, IEducation, IExperience, IValue } from "../models/About";
 import mongoose from "mongoose";
 import { uploadToCloudinary } from "../middleware/uploadMiddleware";
+import { publishChange } from "../lib/publish";
 
 // GET /api/about — public
 export async function getAbout(req: Request, res: Response): Promise<void> {
@@ -81,6 +82,7 @@ export async function updateHero(req: Request, res: Response): Promise<void> {
       { $set: updateFields },
       { new: true, upsert: true },
     );
+    await publishChange("about");
 
     res.status(200).json({
       success: true,
