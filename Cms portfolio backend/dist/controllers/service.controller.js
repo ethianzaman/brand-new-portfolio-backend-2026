@@ -5,6 +5,7 @@ exports.createService = createService;
 exports.updateService = updateService;
 exports.deleteService = deleteService;
 const Service_1 = require("../models/Service");
+const publish_1 = require("../lib/publish");
 async function getServices(req, res) {
     try {
         const services = await Service_1.Service.find().sort({ createdAt: 1 });
@@ -25,6 +26,7 @@ async function getServices(req, res) {
 async function createService(req, res) {
     try {
         const service = await Service_1.Service.create(req.body);
+        await (0, publish_1.publishChange)("services");
         res.status(201).json({
             success: true,
             message: "Service created successfully",
@@ -33,6 +35,7 @@ async function createService(req, res) {
     }
     catch (error) {
         console.error("[CREATE SERVICE ERROR]", error);
+        await (0, publish_1.publishChange)("services");
         res.status(500).json({
             success: false,
             message: "Failed to create service",
@@ -52,6 +55,7 @@ async function updateService(req, res) {
             });
             return;
         }
+        await (0, publish_1.publishChange)("services");
         res.status(200).json({
             success: true,
             service,
@@ -74,6 +78,7 @@ async function deleteService(req, res) {
             });
             return;
         }
+        await (0, publish_1.publishChange)("services");
         res.status(200).json({
             success: true,
             message: "Service deleted successfully",

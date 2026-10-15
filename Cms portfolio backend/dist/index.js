@@ -17,6 +17,8 @@ const skill_routes_1 = __importDefault(require("./routes/skill.routes"));
 const service_routes_1 = __importDefault(require("./routes/service.routes"));
 const about_routes_1 = __importDefault(require("./routes/about.routes"));
 const contact_routes_1 = __importDefault(require("./routes/contact.routes"));
+const message_routes_1 = __importDefault(require("./routes/message.routes"));
+const lead_routes_1 = __importDefault(require("./routes/lead.routes"));
 const blog_routes_1 = __importDefault(require("./routes/blog.routes"));
 const home_routes_1 = __importDefault(require("./routes/home.routes"));
 const events_routes_1 = __importDefault(require("./routes/events.routes"));
@@ -59,6 +61,8 @@ app.use("/api/skills", skill_routes_1.default);
 app.use("/api/services", service_routes_1.default);
 app.use("/api/about", about_routes_1.default);
 app.use("/api/contact", contact_routes_1.default);
+app.use("/api/messages", message_routes_1.default);
+app.use("/api/leads", lead_routes_1.default);
 app.use("/api/blogs", blog_routes_1.default);
 app.use("/api/home", home_routes_1.default);
 // ── Health check ──────────────────────────────────────────────────────

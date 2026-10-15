@@ -9,6 +9,7 @@ exports.deleteBlog = deleteBlog;
 exports.getAllBlogs = getAllBlogs;
 const Blog_1 = require("../models/Blog");
 const uploadMiddleware_1 = require("../middleware/uploadMiddleware");
+const publish_1 = require("../lib/publish");
 function generateSlug(title) {
     return title
         .toLowerCase()
@@ -105,6 +106,7 @@ async function createBlog(req, res) {
                     ? [req.body.tags]
                     : [],
         });
+        await (0, publish_1.publishChange)("blogs");
         res.status(201).json({
             success: true,
             blog,
@@ -160,6 +162,7 @@ async function updateBlog(req, res) {
             new: true,
             runValidators: true,
         });
+        await (0, publish_1.publishChange)("blogs");
         res.status(200).json({
             success: true,
             blog: updatedBlog,
@@ -187,6 +190,7 @@ async function deleteBlog(req, res) {
             await (0, uploadMiddleware_1.deleteFromCloudinary)(blog.coverImage);
         }
         await blog.deleteOne();
+        await (0, publish_1.publishChange)("blogs");
         res.status(200).json({
             success: true,
             message: "Blog deleted successfully",

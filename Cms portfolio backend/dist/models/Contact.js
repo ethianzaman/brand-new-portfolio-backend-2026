@@ -1,4 +1,5 @@
 "use strict";
+// import mongoose, { Document, Schema } from 'mongoose'
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     var desc = Object.getOwnPropertyDescriptor(m, k);
@@ -34,15 +35,131 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Contact = void 0;
+// export interface IContact extends Document {
+//   info: {
+//     email: string
+//     phone: string
+//     location: string
+//     responseTime: string
+//     available: boolean
+//     availableText: string
+//     socials: {
+//       github: string
+//       linkedin: string
+//       twitter: string
+//     }
+//   }
+//   faqs: {
+//     id: string
+//     question: string
+//     answer: string
+//     order: number
+//   }[]
+// }
+// const FAQSchema = new Schema(
+//   {
+//     question: {
+//       type: String,
+//       required: true,
+//     },
+//     answer: {
+//       type: String,
+//       required: true,
+//     },
+//     order: {
+//       type: Number,
+//       default: 0,
+//     },
+//   },
+//   {
+//     _id: true,
+//     id: false,
+//   }
+// )
+// FAQSchema.virtual('id').get(function () {
+//   return this._id.toString()
+// })
+// const ContactSchema = new Schema<IContact>(
+//   {
+//     info: {
+//       email: {
+//         type: String,
+//         required: true,
+//       },
+//       phone: {
+//         type: String,
+//         default: '',
+//       },
+//       location: {
+//         type: String,
+//         default: '',
+//       },
+//       responseTime: {
+//         type: String,
+//         default: 'Within 24 hours',
+//       },
+//       available: {
+//         type: Boolean,
+//         default: true,
+//       },
+//       availableText: {
+//         type: String,
+//         default: 'Currently accepting work',
+//       },
+//       socials: {
+//         github: {
+//           type: String,
+//           default: '',
+//         },
+//         linkedin: {
+//           type: String,
+//           default: '',
+//         },
+//         twitter: {
+//           type: String,
+//           default: '',
+//         },
+//       },
+//     },
+//     faqs: {
+//       type: [FAQSchema],
+//       default: [],
+//     },
+//   },
+//   {
+//     timestamps: true,
+//     toJSON: {
+//       virtuals: true,
+//       transform: (_doc, ret) => {
+//         const { _id, __v, ...rest } = ret
+//         return {
+//           ...rest,
+//           id: _id.toString(),
+//         }
+//       },
+//     },
+//     toObject: {
+//       virtuals: true,
+//     },
+//   }
+// )
+// ContactSchema.virtual('id').get(function () {
+//   return this._id.toString()
+// })
+// export const Contact =
+//   mongoose.models.Contact ||
+//   mongoose.model<IContact>('Contact', ContactSchema)
 const mongoose_1 = __importStar(require("mongoose"));
 const FAQSchema = new mongoose_1.Schema({
     question: {
         type: String,
         required: true,
+        trim: true,
     },
     answer: {
         type: String,
         required: true,
+        trim: true,
     },
     order: {
         type: Number,
@@ -51,9 +168,29 @@ const FAQSchema = new mongoose_1.Schema({
 }, {
     _id: true,
     id: false,
-});
-FAQSchema.virtual('id').get(function () {
-    return this._id.toString();
+    timestamps: false,
+    toJSON: {
+        virtuals: true,
+        versionKey: false,
+        transform: (_doc, ret) => {
+            const { _id, __v, ...rest } = ret;
+            return {
+                id: _id.toString(),
+                ...rest,
+            };
+        },
+    },
+    toObject: {
+        virtuals: true,
+        versionKey: false,
+        transform: (_doc, ret) => {
+            const { _id, __v, ...rest } = ret;
+            return {
+                id: _id.toString(),
+                ...rest,
+            };
+        },
+    },
 });
 const ContactSchema = new mongoose_1.Schema({
     info: {
@@ -63,15 +200,15 @@ const ContactSchema = new mongoose_1.Schema({
         },
         phone: {
             type: String,
-            default: '',
+            default: "",
         },
         location: {
             type: String,
-            default: '',
+            default: "",
         },
         responseTime: {
             type: String,
-            default: 'Within 24 hours',
+            default: "Within 24 hours",
         },
         available: {
             type: Boolean,
@@ -79,20 +216,20 @@ const ContactSchema = new mongoose_1.Schema({
         },
         availableText: {
             type: String,
-            default: 'Currently accepting work',
+            default: "Currently accepting work",
         },
         socials: {
             github: {
                 type: String,
-                default: '',
+                default: "",
             },
             linkedin: {
                 type: String,
-                default: '',
+                default: "",
             },
             twitter: {
                 type: String,
-                default: '',
+                default: "",
             },
         },
     },
@@ -104,6 +241,7 @@ const ContactSchema = new mongoose_1.Schema({
     timestamps: true,
     toJSON: {
         virtuals: true,
+        versionKey: false,
         transform: (_doc, ret) => {
             const { _id, __v, ...rest } = ret;
             return {
@@ -114,10 +252,15 @@ const ContactSchema = new mongoose_1.Schema({
     },
     toObject: {
         virtuals: true,
+        versionKey: false,
+        transform: (_doc, ret) => {
+            const { _id, __v, ...rest } = ret;
+            return {
+                ...rest,
+                id: _id.toString(),
+            };
+        },
     },
 });
-ContactSchema.virtual('id').get(function () {
-    return this._id.toString();
-});
 exports.Contact = mongoose_1.default.models.Contact ||
-    mongoose_1.default.model('Contact', ContactSchema);
+    mongoose_1.default.model("Contact", ContactSchema);

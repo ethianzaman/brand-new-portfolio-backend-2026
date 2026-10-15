@@ -13,6 +13,8 @@ import skillRoutes from "./routes/skill.routes";
 import serviceRoutes from "./routes/service.routes";
 import aboutRoutes from "./routes/about.routes";
 import contactRoutes from "./routes/contact.routes";
+import messageRoutes from "./routes/message.routes";
+import leadRoutes from "./routes/lead.routes";
 import blogRoutes from "./routes/blog.routes";
 import homeRoutes from "./routes/home.routes";
 import eventsRoutes from "./routes/events.routes";
@@ -59,6 +61,8 @@ app.use("/api/skills", skillRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/about", aboutRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/leads", leadRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/home", homeRoutes);
 
