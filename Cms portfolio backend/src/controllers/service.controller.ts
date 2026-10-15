@@ -27,7 +27,7 @@ export async function createService(
 ): Promise<void> {
   try {
     const service = await Service.create(req.body);
-
+    await publishChange("services");
     res.status(201).json({
       success: true,
       message: "Service created successfully",

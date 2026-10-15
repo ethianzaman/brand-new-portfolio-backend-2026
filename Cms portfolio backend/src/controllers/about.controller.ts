@@ -127,7 +127,7 @@ export async function createExperience(
     // অথবা শুধু আপডেটেড experiences অ্যারেটি পাঠানোই বেস্ট প্র্যাকটিস (ফ্রন্টএন্ড স্টেটের জন্য সুবিধা)
     // ✅ এটা করো
     const savedExp = updatedAbout.experiences[0];
-
+    await publishChange("about"); // Publish change after successful creation
     res.status(201).json({
       success: true,
       message: "Experience created successfully",
@@ -224,7 +224,7 @@ export async function updateExperience(
     );
 
     console.log("UPDATED EXP:", updatedExp);
-
+    await publishChange("about"); // Publish change after successful update
     // 8️⃣ Response
     res.status(200).json({
       success: true,
@@ -285,7 +285,7 @@ export async function deleteExperience(
       });
       return;
     }
-
+    await publishChange("about"); // Publish change after successful deletion
     // 4️⃣ Success response
     res.status(200).json({
       success: true,
@@ -315,6 +315,7 @@ export async function createEducation(
     );
     // ✅ MongoDB-generated _id সহ actual saved object return করো
     const savedEdu = about.educations[0]; // position: 0 তে push করেছো, তাই
+    await publishChange("about"); // Publish change after successful creation
     res.status(201).json({ success: true, education: savedEdu });
   } catch (err: any) {
     res.status(400).json({ success: false, message: err.message });
@@ -376,20 +377,6 @@ export const updateEducation = async (
       return;
     }
 
-    // 5️⃣ Update document (SAFE ARRAY MATCH)
-    // const updatedAbout = await About.findOneAndUpdate(
-    //   {
-    //     "educations._id": new mongoose.Types.ObjectId(id),
-    //   },
-    //   {
-    //     $set: updateFields,
-    //   },
-    //   {
-    //     new: true,
-    //     runValidators: true,
-    //   },
-    // );
-
     const updatedAbout = await About.findOneAndUpdate(
       {},
       {
@@ -422,12 +409,8 @@ export const updateEducation = async (
 
     console.log("UPDATED EDU:", updatedEdu);
 
+    await publishChange("about"); // Publish change after successful update
     // 8️⃣ Success response
-    // res.status(200).json({
-    //   success: true,
-    //   message: "Education updated successfully",
-    //   education: updatedEdu,qszx
-    // });
     res.status(200).json({
       success: true,
       message: "Education updated successfully",
@@ -490,7 +473,7 @@ export async function deleteEducation(
     }
 
     // console.log("UPDATED EDUCATIONS:", updatedAbout.educations);
-
+    await publishChange("about"); // Publish change after successful deletion
     // 4️⃣ Success response
     res.status(200).json({
       success: true,
@@ -515,6 +498,7 @@ export async function createValue(req: Request, res: Response): Promise<void> {
       { $push: { values: val } },
       { new: true, upsert: true },
     );
+    await publishChange("about"); // Publish change after successful creation
     res.status(201).json({
       success: true,
       message: "Value created successfully",
@@ -573,6 +557,8 @@ export async function updateValue(req: Request, res: Response): Promise<void> {
       v._id.equals(new mongoose.Types.ObjectId(id)),
     );
 
+    await publishChange("about"); // Publish change after successful update
+
     res.status(200).json({ success: true, value: updated });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Server error";
@@ -580,18 +566,6 @@ export async function updateValue(req: Request, res: Response): Promise<void> {
   }
 }
 
-// DELETE /api/about/values/:id — protected
-// export async function deleteValue(req: Request, res: Response): Promise<void> {
-//   try {
-//     await About.findOneAndUpdate(
-//       {},
-//       { $pull: { values: { id: req.params.id } } },
-//     );
-//     res.status(200).json({ success: true, message: "Value deleted" });
-//   } catch {
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// }
 
 export async function deleteValue(req: Request, res: Response): Promise<void> {
   try {
@@ -617,6 +591,7 @@ export async function deleteValue(req: Request, res: Response): Promise<void> {
       res.status(404).json({ success: false, message: "Value not found" });
       return;
     }
+    await publishChange("about"); // Publish change after successful deletion
 
     res
       .status(200)

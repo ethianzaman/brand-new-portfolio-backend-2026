@@ -6,29 +6,6 @@ export interface AuthRequest extends Request {
   userId?: string
 }
 
-// export function protect(
-//   req: AuthRequest,
-//   res: Response,
-//   next: NextFunction
-// ): void {
-//   const header = req.headers.authorization
-//   console.log('Authorization header:', header)
-
-//   if (!header || !header.startsWith('Bearer ')) {
-//     res.status(401).json({ success: false, message: 'Not authorized' })
-//     return
-//   }
-
-//   const token = header.split(' ')[1]
-
-//   try {
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string }
-//     req.userId = decoded.id
-//     next()
-//   } catch {
-//     res.status(401).json({ success: false, message: 'Token invalid or expired' })
-//   }
-// }
 
 // এক্সপ্রেস রিকোয়েস্টের সাথে ইউজার যুক্ত করে একটি কাস্টম ইন্টারফেস তৈরি
 interface AuthenticatedRequest extends Request {
