@@ -17,6 +17,7 @@ exports.deleteValue = deleteValue;
 const About_1 = require("../models/About");
 const mongoose_1 = __importDefault(require("mongoose"));
 const uploadMiddleware_1 = require("../middleware/uploadMiddleware");
+const publish_1 = require("../lib/publish");
 // GET /api/about — public
 async function getAbout(req, res) {
     try {
@@ -80,6 +81,7 @@ async function updateHero(req, res) {
             updateFields[`hero.${key}`] = heroData[key];
         }
         const about = await About_1.About.findOneAndUpdate({}, { $set: updateFields }, { new: true, upsert: true });
+        await (0, publish_1.publishChange)("about");
         res.status(200).json({
             success: true,
             hero: about.hero,
@@ -114,6 +116,7 @@ async function createExperience(req, res) {
         // অথবা শুধু আপডেটেড experiences অ্যারেটি পাঠানোই বেস্ট প্র্যাকটিস (ফ্রন্টএন্ড স্টেটের জন্য সুবিধা)
         // ✅ এটা করো
         const savedExp = updatedAbout.experiences[0];
+        await (0, publish_1.publishChange)("about"); // Publish change after successful creation
         res.status(201).json({
             success: true,
             message: "Experience created successfully",
@@ -191,6 +194,7 @@ async function updateExperience(req, res) {
         // 7️⃣ Extract updated experience
         const updatedExp = updatedAbout.experiences.find((exp) => exp._id.toString() === id);
         console.log("UPDATED EXP:", updatedExp);
+        await (0, publish_1.publishChange)("about"); // Publish change after successful update
         // 8️⃣ Response
         res.status(200).json({
             success: true,
@@ -239,6 +243,7 @@ async function deleteExperience(req, res) {
             });
             return;
         }
+        await (0, publish_1.publishChange)("about"); // Publish change after successful deletion
         // 4️⃣ Success response
         res.status(200).json({
             success: true,
@@ -260,6 +265,7 @@ async function createEducation(req, res) {
         const about = await About_1.About.findOneAndUpdate({}, { $push: { educations: { $each: [edu], $position: 0 } } }, { new: true, upsert: true });
         // ✅ MongoDB-generated _id সহ actual saved object return করো
         const savedEdu = about.educations[0]; // position: 0 তে push করেছো, তাই
+        await (0, publish_1.publishChange)("about"); // Publish change after successful creation
         res.status(201).json({ success: true, education: savedEdu });
     }
     catch (err) {
@@ -310,19 +316,6 @@ const updateEducation = async (req, res) => {
             });
             return;
         }
-        // 5️⃣ Update document (SAFE ARRAY MATCH)
-        // const updatedAbout = await About.findOneAndUpdate(
-        //   {
-        //     "educations._id": new mongoose.Types.ObjectId(id),
-        //   },
-        //   {
-        //     $set: updateFields,
-        //   },
-        //   {
-        //     new: true,
-        //     runValidators: true,
-        //   },
-        // );
         const updatedAbout = await About_1.About.findOneAndUpdate({}, {
             $set: updateFields,
         }, {
@@ -345,12 +338,8 @@ const updateEducation = async (req, res) => {
         // 7️⃣ Extract updated education
         const updatedEdu = updatedAbout.educations.find((edu) => edu._id.toString() === id);
         console.log("UPDATED EDU:", updatedEdu);
+        await (0, publish_1.publishChange)("about"); // Publish change after successful update
         // 8️⃣ Success response
-        // res.status(200).json({
-        //   success: true,
-        //   message: "Education updated successfully",
-        //   education: updatedEdu,qszx
-        // });
         res.status(200).json({
             success: true,
             message: "Education updated successfully",
@@ -400,6 +389,7 @@ async function deleteEducation(req, res) {
             return;
         }
         // console.log("UPDATED EDUCATIONS:", updatedAbout.educations);
+        await (0, publish_1.publishChange)("about"); // Publish change after successful deletion
         // 4️⃣ Success response
         res.status(200).json({
             success: true,
@@ -419,6 +409,7 @@ async function createValue(req, res) {
     try {
         const val = { ...req.body, _id: new mongoose_1.default.Types.ObjectId() };
         const about = await About_1.About.findOneAndUpdate({}, { $push: { values: val } }, { new: true, upsert: true });
+        await (0, publish_1.publishChange)("about"); // Publish change after successful creation
         res.status(201).json({
             success: true,
             message: "Value created successfully",
@@ -463,6 +454,7 @@ async function updateValue(req, res) {
         }
         // ✅ 5. Type safe find — IValue import না লাগলেও হবে
         const updated = about.values.find((v) => v._id.equals(new mongoose_1.default.Types.ObjectId(id)));
+        await (0, publish_1.publishChange)("about"); // Publish change after successful update
         res.status(200).json({ success: true, value: updated });
     }
     catch (error) {
@@ -470,18 +462,6 @@ async function updateValue(req, res) {
         res.status(500).json({ success: false, message });
     }
 }
-// DELETE /api/about/values/:id — protected
-// export async function deleteValue(req: Request, res: Response): Promise<void> {
-//   try {
-//     await About.findOneAndUpdate(
-//       {},
-//       { $pull: { values: { id: req.params.id } } },
-//     );
-//     res.status(200).json({ success: true, message: "Value deleted" });
-//   } catch {
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// }
 async function deleteValue(req, res) {
     try {
         const { id } = req.params;
@@ -499,6 +479,7 @@ async function deleteValue(req, res) {
             res.status(404).json({ success: false, message: "Value not found" });
             return;
         }
+        await (0, publish_1.publishChange)("about"); // Publish change after successful deletion
         res
             .status(200)
             .json({ success: true, message: "Value deleted successfully" });

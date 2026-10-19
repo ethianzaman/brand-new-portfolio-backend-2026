@@ -13,6 +13,7 @@ exports.deleteSkill = deleteSkill;
 const SKill_1 = require("../models/SKill");
 const mongoose_1 = __importDefault(require("mongoose"));
 const uploadMiddleware_1 = require("../middleware/uploadMiddleware");
+const publish_1 = require("../lib/publish");
 // GET /api/skills — public
 async function getSkills(req, res) {
     try {
@@ -56,6 +57,7 @@ async function createCategory(req, res) {
             order,
             skills: [],
         });
+        await (0, publish_1.publishChange)("skills");
         res.status(201).json({
             success: true,
             message: "Category created successfully.",
@@ -93,6 +95,7 @@ async function updateCategory(req, res) {
             });
             return;
         }
+        await (0, publish_1.publishChange)("skills");
         res.status(200).json({
             success: true,
             message: "Category updated successfully.",
@@ -125,6 +128,7 @@ async function deleteCategory(req, res) {
             });
             return;
         }
+        await (0, publish_1.publishChange)("skills");
         res.status(200).json({
             success: true,
             message: "Category deleted successfully.",
@@ -200,6 +204,7 @@ async function addSkill(req, res) {
             icon: finalIcon,
         });
         await category.save();
+        await (0, publish_1.publishChange)("skills");
         res.status(201).json({
             success: true,
             message: "Skill created successfully.",
@@ -299,6 +304,7 @@ async function updateSkill(req, res) {
             });
             await sourceCategory.save();
             await destinationCategory.save();
+            await (0, publish_1.publishChange)("skills");
             res.status(200).json({
                 success: true,
                 message: "Skill moved successfully.",
@@ -313,6 +319,7 @@ async function updateSkill(req, res) {
         skill.name = newName;
         skill.icon = newIcon;
         await sourceCategory.save();
+        await (0, publish_1.publishChange)("skills");
         res.status(200).json({
             success: true,
             message: "Skill updated successfully.",
@@ -366,6 +373,7 @@ async function deleteSkill(req, res) {
          */
         category.skills = category.skills.filter((s) => s.name !== decodedName);
         await category.save();
+        await (0, publish_1.publishChange)("skills");
         res.status(200).json({
             success: true,
             message: "Skill deleted successfully.",

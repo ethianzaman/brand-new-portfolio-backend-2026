@@ -8,6 +8,7 @@ exports.deleteProject = deleteProject;
 exports.getAllProjects = getAllProjects;
 const Project_1 = require("../models/Project");
 const uploadMiddleware_1 = require("../middleware/uploadMiddleware");
+const publish_1 = require("../lib/publish");
 // GET /api/projects — public, with pagination + filter
 async function getProjects(req, res) {
     try {
@@ -62,6 +63,7 @@ async function createProject(req, res) {
             ...req.body,
             thumbnail,
         });
+        await (0, publish_1.publishChange)("projects");
         res.status(201).json({
             success: true,
             project,
@@ -110,6 +112,7 @@ async function updateProject(req, res) {
             new: true,
             runValidators: true,
         });
+        await (0, publish_1.publishChange)("projects");
         res.status(200).json({
             success: true,
             project: updatedProject,
@@ -122,22 +125,6 @@ async function updateProject(req, res) {
         });
     }
 }
-// DELETE /api/projects/:id — protected
-// export async function deleteProject(
-//   req: Request,
-//   res: Response,
-// ): Promise<void> {
-//   try {
-//     const project = await Project.findByIdAndDelete(req.params.id);
-//     if (!project) {
-//       res.status(404).json({ success: false, message: "Project not found" });
-//       return;
-//     }
-//     res.status(200).json({ success: true, message: "Project deleted" });
-//   } catch {
-//     res.status(500).json({ success: false, message: "Server error" });
-//   }
-// }
 async function deleteProject(req, res) {
     try {
         const project = await Project_1.Project.findById(req.params.id);
@@ -154,6 +141,7 @@ async function deleteProject(req, res) {
         }
         // Delete project from MongoDB
         await project.deleteOne();
+        await (0, publish_1.publishChange)("projects");
         res.status(200).json({
             success: true,
             message: "Project deleted successfully",
