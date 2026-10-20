@@ -23,7 +23,7 @@ import { broadcast } from "./sse";
  * cache could not be invalidated — the 60s ISR window will pick it up anyway.
  *
  * Tags must match the frontend exactly: home, about, contact, skills,
- * projects, blog, and `blog-${slug}` for a single post.
+ * projects, settings, blog, and `blog-${slug}` for a single post.
  */
 
 const REVALIDATE_TIMEOUT_MS = 3000;

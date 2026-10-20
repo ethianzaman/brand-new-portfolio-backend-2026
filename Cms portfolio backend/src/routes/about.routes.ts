@@ -23,21 +23,21 @@ router.get("/", getAbout);
 
 // Hero — protected
 // router.put('/hero', protect, updateHero)
-router.put("/hero", upload.single("image"), updateHero);
+router.put("/hero",protect, upload.single("image"), updateHero);
 
 // Experiences — protected
-router.post("/experiences", createExperience);
-router.put("/experiences/:id", updateExperience);
-router.delete("/experiences/:id", deleteExperience);
+router.post("/experiences",protect, createExperience);
+router.put("/experiences/:id", protect, updateExperience);
+router.delete("/experiences/:id", protect, deleteExperience);
 
 // Educations — protected
-router.post("/educations", createEducation);
-router.put("/educations/:id", updateEducation);
-router.delete("/educations/:id", deleteEducation);
+router.post("/educations", protect, createEducation);
+router.put("/educations/:id", protect, updateEducation);
+router.delete("/educations/:id", protect, deleteEducation);
 
 // Values — protected
-router.post("/values", createValue);
-router.put("/values/:id", updateValue);
-router.delete("/values/:id", deleteValue);
+router.post("/values", protect, createValue);
+router.put("/values/:id", protect, updateValue);
+router.delete("/values/:id", protect, deleteValue);
 
 export default router;

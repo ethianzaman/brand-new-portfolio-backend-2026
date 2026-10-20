@@ -14,11 +14,11 @@ const router = Router();
 router.get("/", getContact);
 
 // Info — protected
-router.put("/info", updateInfo);
+router.put("/info", protect, updateInfo);
 
 // FAQs — protected
-router.post("/faq", createFAQ);
-router.put("/faq/:id", updateFAQ);
-router.delete("/faq/:id", deleteFAQ);
+router.post("/faq", protect, createFAQ);
+router.put("/faq/:id", protect, updateFAQ);
+router.delete("/faq/:id", protect, deleteFAQ);
 
 export default router;

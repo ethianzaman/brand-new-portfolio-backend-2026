@@ -21,7 +21,7 @@ router.get("/", getHome);
 // ── Hero — protected (FormData: image + resume files) ────────────
 // router.put("/hero", protect, upload.fields([...]), updateHero)
 router.put(
-  "/hero",
+  "/hero", protect,
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "resume", maxCount: 1 },
@@ -30,14 +30,14 @@ router.put(
 );
 
 // ── Stats — protected ────────────────────────────────────────────
-router.put("/stats", replaceStats); // frontend contract: পুরো array replace
-router.post("/stats", createStat);
-router.put("/stats/:id", updateStat);
-router.delete("/stats/:id", deleteStat);
+router.put("/stats", protect, replaceStats); // frontend contract: পুরো array replace
+router.post("/stats", protect, createStat);
+router.put("/stats/:id", protect, updateStat);
+router.delete("/stats/:id", protect, deleteStat);
 
 // ── Socials — protected ──────────────────────────────────────────
-router.post("/socials", createSocial);
-router.put("/socials/:id", updateSocial);
-router.delete("/socials/:id", deleteSocial);
+router.post("/socials", protect, createSocial);
+router.put("/socials/:id", protect, updateSocial);
+router.delete("/socials/:id", protect, deleteSocial);
 
 export default router;

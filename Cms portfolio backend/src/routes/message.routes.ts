@@ -9,6 +9,7 @@ import {
   replyToMessage,
   updateMessage,
 } from "../controllers/message.controller";
+import { protect } from "../middleware/auth";
 
 const router = Router();
 
@@ -17,13 +18,13 @@ router.post("/", createMessage);
 
 // ── Dashboard — inbox management ────────────────────────────────────
 // Static segments MUST be registered before "/:id".
-router.get("/unread-count", getUnreadCount);
-router.post("/read-all", markAllRead);
+router.get("/unread-count", protect, getUnreadCount);
+router.post("/read-all", protect, markAllRead);
 
-router.get("/", getMessages);
-router.get("/:id", getMessage);
-router.patch("/:id", updateMessage);
-router.post("/:id/reply", replyToMessage);
-router.delete("/:id", deleteMessage);
+router.get("/", protect, getMessages);
+router.get("/:id", protect, getMessage);
+router.patch("/:id", protect, updateMessage);
+router.post("/:id/reply", protect, replyToMessage);
+router.delete("/:id", protect, deleteMessage);
 
 export default router;

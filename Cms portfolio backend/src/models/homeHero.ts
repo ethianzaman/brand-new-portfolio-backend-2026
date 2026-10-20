@@ -74,6 +74,7 @@ const SocialSchema = new Schema(
   {
     label: { type: String, required: true, trim: true, maxlength: 50 },
     href: { type: String, required: true, trim: true, maxlength: 500 },
+    icon: { type: String, default: "", trim: true, maxlength: 30 },
   },
   { _id: true },
 );

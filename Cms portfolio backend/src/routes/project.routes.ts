@@ -14,14 +14,18 @@ const router = Router();
 
 // Public
 router.get("/", getProjects);
+
+// NOTE: static segments must be registered BEFORE "/:id", otherwise
+// "/all" is matched as an id and Project.findById("all") throws a CastError
+// (HTTP 500).
 router.get("/all", getAllProjects);
 router.get("/:id", getProjectById);
 
 // Protected — dashboard only
 // router.post("/", createProject);
-router.post("/create", upload.single("image"), createProject);
+router.post("/create", protect, upload.single("image"), createProject);
 // router.put("/:id", updateProject);
-router.put("/:id", upload.single("image"), updateProject);
-router.delete("/:id", deleteProject);
+router.put("/:id", protect, upload.single("image"), updateProject);
+router.delete("/:id", protect, deleteProject);
 
 export default router;
