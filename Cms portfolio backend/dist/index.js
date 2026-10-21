@@ -21,6 +21,7 @@ const message_routes_1 = __importDefault(require("./routes/message.routes"));
 const lead_routes_1 = __importDefault(require("./routes/lead.routes"));
 const blog_routes_1 = __importDefault(require("./routes/blog.routes"));
 const home_routes_1 = __importDefault(require("./routes/home.routes"));
+const settings_routes_1 = __importDefault(require("./routes/settings.routes"));
 const events_routes_1 = __importDefault(require("./routes/events.routes"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT ?? 5000;
@@ -65,6 +66,7 @@ app.use("/api/messages", message_routes_1.default);
 app.use("/api/leads", lead_routes_1.default);
 app.use("/api/blogs", blog_routes_1.default);
 app.use("/api/home", home_routes_1.default);
+app.use("/api/settings", settings_routes_1.default);
 // ── Health check ──────────────────────────────────────────────────────
 app.get("/api/health", (_, res) => {
     res.json({ success: true, message: "API is running" });

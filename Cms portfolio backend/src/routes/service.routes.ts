@@ -10,8 +10,8 @@ import { protect } from "../middleware/auth";
 const router = Router();
 
 router.get("", getServices);
-router.post("/create", createService);
-router.put("/:id", updateService);
-router.delete("/:id", deleteService);
+router.post("/create", protect, createService);
+router.put("/:id", protect, updateService);
+router.delete("/:id", protect, deleteService);
 
 export default router;

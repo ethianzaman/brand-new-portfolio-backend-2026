@@ -33,22 +33,61 @@ export const signUp = async (req: Request, res: Response): Promise<void> => {
 }
 
 // ২. লগইন (টোকেন কুকিতে পুশ করা হবে)
+// export const login = async (req: Request, res: Response): Promise<void> => {
+//   try {
+//     const { email, password } = req.body
+
+//     const user = await User.findOne({ email }).select('+password')
+//     if (!user || !(await user.comparePassword(password))) {
+//       res.status(401).json({ message: 'Invalid email or password' })
+//       return
+//     }
+
+//     const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' })
+
+//     res.cookie('token', token, cookieOptions)
+//     res.status(200).json({ message: 'Login successful', email: user.email })
+//   } catch (error) {
+//     res.status(500).json({ message: 'Server error', error })
+//   }
+// }
+
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body
 
-    const user = await User.findOne({ email }).select('+password')
+    const user = await User.findOne({
+      email: email?.trim().toLowerCase(),
+    }).select('+password')
+
     if (!user || !(await user.comparePassword(password))) {
       res.status(401).json({ message: 'Invalid email or password' })
       return
     }
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' })
+    // Only admin can log in to the CMS dashboard
+    if (user.role !== 'admin') {
+      res.status(403).json({
+        message: 'Access denied. Admin permission required.',
+      })
+      return
+    }
+
+    const token = jwt.sign(
+      { id: user._id },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    )
 
     res.cookie('token', token, cookieOptions)
-    res.status(200).json({ message: 'Login successful', email: user.email })
+
+    res.status(200).json({
+      message: 'Login successful',
+      email: user.email,
+      role: user.role,
+    })
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error })
+    res.status(500).json({ message: 'Server error' })
   }
 }
 

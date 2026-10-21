@@ -17,6 +17,7 @@ import messageRoutes from "./routes/message.routes";
 import leadRoutes from "./routes/lead.routes";
 import blogRoutes from "./routes/blog.routes";
 import homeRoutes from "./routes/home.routes";
+import settingsRoutes from "./routes/settings.routes";
 import eventsRoutes from "./routes/events.routes";
 
 const app = express();
@@ -65,6 +66,7 @@ app.use("/api/messages", messageRoutes);
 app.use("/api/leads", leadRoutes);
 app.use("/api/blogs", blogRoutes);
 app.use("/api/home", homeRoutes);
+app.use("/api/settings", settingsRoutes);
 
 // ── Health check ──────────────────────────────────────────────────────
 app.get("/api/health", (_, res) => {

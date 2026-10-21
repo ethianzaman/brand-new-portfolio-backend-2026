@@ -17,14 +17,14 @@ const router = Router();
 router.get("/", getSkills);
 
 // Category CRUD — protected
-router.post("/categories", createCategory);
-router.put("/categories/:id", updateCategory);
-router.delete("/categories/:id", deleteCategory);
+router.post("/categories", protect, createCategory);
+router.put("/categories/:id", protect, updateCategory);
+router.delete("/categories/:id", protect, deleteCategory);
 
 // Skill CRUD inside category — protected
 // router.post("/categories/:id/skills", addSkill);
-router.post("/categories/:id/skills", upload.single("icon"), addSkill);
-router.put("/categories/:id/skills/:skillName", upload.single("icon"), updateSkill);
-router.delete("/categories/:id/skills/:skillName", deleteSkill);
+router.post("/categories/:id/skills", protect, upload.single("icon"), addSkill);
+router.put("/categories/:id/skills/:skillName", protect, upload.single("icon"), updateSkill);
+router.delete("/categories/:id/skills/:skillName", protect, deleteSkill);
 
 export default router;

@@ -23,7 +23,12 @@ type HomeDoc = mongoose.HydratedDocument<{
     bio: string;
     image: string | null;
     resumeUrl: string;
-    socials: { _id: mongoose.Types.ObjectId; label: string; href: string }[];
+    socials: {
+      _id: mongoose.Types.ObjectId;
+      label: string;
+      href: string;
+      icon: string;
+    }[];
   };
   stats: { _id: mongoose.Types.ObjectId; value: string; label: string }[];
 }>;
@@ -48,7 +53,9 @@ async function getOrCreateDoc(): Promise<HomeDoc> {
   return doc as HomeDoc;
 }
 
-function parseSocials(raw: unknown): { label: string; href: string }[] | null {
+function parseSocials(
+  raw: unknown,
+): { label: string; href: string; icon: string }[] | null {
   let list: unknown = raw;
 
   // FormData থেকে আসা JSON string কে parse করা
@@ -62,7 +69,7 @@ function parseSocials(raw: unknown): { label: string; href: string }[] | null {
 
   if (!Array.isArray(list)) return null;
 
-  const socials: { label: string; href: string }[] = [];
+  const socials: { label: string; href: string; icon: string }[] = [];
 
   for (const item of list) {
     if (
@@ -73,7 +80,11 @@ function parseSocials(raw: unknown): { label: string; href: string }[] | null {
     ) {
       const label = (item as any).label.trim();
       const href = (item as any).href.trim();
-      if (label && href) socials.push({ label, href });
+      const icon =
+        typeof (item as any).icon === "string"
+          ? (item as any).icon.trim().slice(0, 30)
+          : "";
+      if (label && href) socials.push({ label, href, icon });
     }
   }
 
@@ -121,6 +132,7 @@ function sendDoc(res: Response, doc: HomeDoc) {
         _id: s._id,
         label: s.label,
         href: s.href,
+        icon: s.icon,
       })),
     },
     stats: doc.stats.map((s) => ({
@@ -255,7 +267,7 @@ export async function updateHero(
         res.status(400).json({
           success: false,
           message:
-            "socials must be a valid JSON array of { label, href }",
+            "socials must be a valid JSON array of { label, href, icon }",
         });
         return;
       }
@@ -472,6 +484,7 @@ export async function updateHero(
           _id: social._id,
           label: social.label,
           href: social.href,
+          icon: social.icon,
         })),
       },
     });
@@ -688,7 +701,7 @@ export async function deleteStat(req: Request, res: Response): Promise<void> {
 // ── POST /api/home/socials — add one social ─────────────────────
 export async function createSocial(req: Request, res: Response): Promise<void> {
   try {
-    const { label, href } = req.body ?? {};
+    const { label, href, icon } = req.body ?? {};
 
     if (!label || !href) {
       res
@@ -713,6 +726,7 @@ export async function createSocial(req: Request, res: Response): Promise<void> {
     doc.hero.socials.push({
       label: String(label).slice(0, 50),
       href: String(href).slice(0, 500),
+      icon: icon ? String(icon).trim().slice(0, 30) : "",
     } as any);
     await doc.save();
 
@@ -727,7 +741,12 @@ export async function createSocial(req: Request, res: Response): Promise<void> {
     const created = doc.hero.socials[doc.hero.socials.length - 1];
     res.status(201).json({
       success: true,
-      social: { _id: created._id, label: created.label, href: created.href },
+      social: {
+        _id: created._id,
+        label: created.label,
+        href: created.href,
+        icon: created.icon,
+      },
     });
   } catch {
     res.status(500).json({ success: false, message: "Server error" });
@@ -746,8 +765,8 @@ export async function updateSocial(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const { label, href } = req.body ?? {};
-    if (label === undefined && href === undefined) {
+    const { label, href, icon } = req.body ?? {};
+    if (label === undefined && href === undefined && icon === undefined) {
       res.status(400).json({ success: false, message: "Nothing to update" });
       return;
     }
@@ -766,6 +785,7 @@ export async function updateSocial(req: Request, res: Response): Promise<void> {
 
     if (label !== undefined) social.label = String(label).slice(0, 50);
     if (href !== undefined) social.href = String(href).slice(0, 500);
+    if (icon !== undefined) social.icon = String(icon).trim().slice(0, 30);
     await doc.save();
 
     invalidate();
@@ -778,7 +798,12 @@ export async function updateSocial(req: Request, res: Response): Promise<void> {
     await publishChange("home");
     res.status(200).json({
       success: true,
-      social: { _id: social._id, label: social.label, href: social.href },
+      social: {
+        _id: social._id,
+        label: social.label,
+        href: social.href,
+        icon: social.icon,
+      },
     });
   } catch {
     res.status(500).json({ success: false, message: "Server error" });
