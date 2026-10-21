@@ -62,8 +62,11 @@ function parseSocials(raw) {
             typeof item.href === "string") {
             const label = item.label.trim();
             const href = item.href.trim();
+            const icon = typeof item.icon === "string"
+                ? item.icon.trim().slice(0, 30)
+                : "";
             if (label && href)
-                socials.push({ label, href });
+                socials.push({ label, href, icon });
         }
     }
     return socials;
@@ -105,6 +108,7 @@ function sendDoc(res, doc) {
                 _id: s._id,
                 label: s.label,
                 href: s.href,
+                icon: s.icon,
             })),
         },
         stats: doc.stats.map((s) => ({
@@ -203,7 +207,7 @@ async function updateHero(req, res) {
             if (!parsedSocials) {
                 res.status(400).json({
                     success: false,
-                    message: "socials must be a valid JSON array of { label, href }",
+                    message: "socials must be a valid JSON array of { label, href, icon }",
                 });
                 return;
             }
@@ -362,6 +366,7 @@ async function updateHero(req, res) {
                     _id: social._id,
                     label: social.label,
                     href: social.href,
+                    icon: social.icon,
                 })),
             },
         });
@@ -540,7 +545,7 @@ async function deleteStat(req, res) {
 // ── POST /api/home/socials — add one social ─────────────────────
 async function createSocial(req, res) {
     try {
-        const { label, href } = req.body ?? {};
+        const { label, href, icon } = req.body ?? {};
         if (!label || !href) {
             res
                 .status(400)
@@ -562,6 +567,7 @@ async function createSocial(req, res) {
         doc.hero.socials.push({
             label: String(label).slice(0, 50),
             href: String(href).slice(0, 500),
+            icon: icon ? String(icon).trim().slice(0, 30) : "",
         });
         await doc.save();
         invalidate();
@@ -571,7 +577,12 @@ async function createSocial(req, res) {
         const created = doc.hero.socials[doc.hero.socials.length - 1];
         res.status(201).json({
             success: true,
-            social: { _id: created._id, label: created.label, href: created.href },
+            social: {
+                _id: created._id,
+                label: created.label,
+                href: created.href,
+                icon: created.icon,
+            },
         });
     }
     catch {
@@ -588,8 +599,8 @@ async function updateSocial(req, res) {
                 .json({ success: false, message: "Invalid social ObjectId" });
             return;
         }
-        const { label, href } = req.body ?? {};
-        if (label === undefined && href === undefined) {
+        const { label, href, icon } = req.body ?? {};
+        if (label === undefined && href === undefined && icon === undefined) {
             res.status(400).json({ success: false, message: "Nothing to update" });
             return;
         }
@@ -607,6 +618,8 @@ async function updateSocial(req, res) {
             social.label = String(label).slice(0, 50);
         if (href !== undefined)
             social.href = String(href).slice(0, 500);
+        if (icon !== undefined)
+            social.icon = String(icon).trim().slice(0, 30);
         await doc.save();
         invalidate();
         // Drop the frontend's "home" cache tag, then tell every open
@@ -614,7 +627,12 @@ async function updateSocial(req, res) {
         await (0, publish_1.publishChange)("home");
         res.status(200).json({
             success: true,
-            social: { _id: social._id, label: social.label, href: social.href },
+            social: {
+                _id: social._id,
+                label: social.label,
+                href: social.href,
+                icon: social.icon,
+            },
         });
     }
     catch {

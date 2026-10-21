@@ -98,4 +98,17 @@ const ProjectSchema = new mongoose_1.Schema({
         transform: transformDocument,
     },
 });
+/**
+ * Indexes for the dashboard list endpoint (`GET /api/projects/all`).
+ *
+ *  { category, createdAt } — filter + sort satisfied by one index
+ *  { createdAt }            — the unfiltered listing (newest first)
+ *  { title } / { tags }     — the search path
+ *  { featured }             — the "featured" stat card count
+ */
+ProjectSchema.index({ category: 1, createdAt: -1 });
+ProjectSchema.index({ createdAt: -1 });
+ProjectSchema.index({ title: 1 });
+ProjectSchema.index({ tags: 1 });
+ProjectSchema.index({ featured: 1 });
 exports.Project = mongoose_1.default.model("Project", ProjectSchema);

@@ -10,7 +10,7 @@ import {
   updateSocial,
   deleteSocial,
 } from "../controllers/home.controller";
-import { protect } from "../middleware/auth";
+import { protect, requirePermission } from "../middleware/auth";
 import { upload } from "../middleware/uploadMiddleware";
 
 const router = Router();
@@ -18,26 +18,32 @@ const router = Router();
 // ── Public (fast, cached) ────────────────────────────────────────
 router.get("/", getHome);
 
-// ── Hero — protected (FormData: image + resume files) ────────────
-// router.put("/hero", protect, upload.fields([...]), updateHero)
+// ── Hero — Admin, Manager, Editor (FormData: image + resume files) ──
 router.put(
-  "/hero", protect,
+  "/hero",
+  protect,
+  requirePermission("update"),
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "resume", maxCount: 1 },
   ]),
-  updateHero,
+  updateHero
 );
 
-// ── Stats — protected ────────────────────────────────────────────
-router.put("/stats", protect, replaceStats); // frontend contract: পুরো array replace
-router.post("/stats", protect, createStat);
-router.put("/stats/:id", protect, updateStat);
-router.delete("/stats/:id", protect, deleteStat);
+// ── Stats ────────────────────────────────────────────────────────
+router.put("/stats", protect, requirePermission("update"), replaceStats); // frontend contract: replace whole array
+router.post("/stats", protect, requirePermission("create"), createStat);
+router.put("/stats/:id", protect, requirePermission("update"), updateStat);
+router.delete("/stats/:id", protect, requirePermission("delete"), deleteStat);
 
-// ── Socials — protected ──────────────────────────────────────────
-router.post("/socials", protect, createSocial);
-router.put("/socials/:id", protect, updateSocial);
-router.delete("/socials/:id", protect, deleteSocial);
+// ── Socials ──────────────────────────────────────────────────────
+router.post("/socials", protect, requirePermission("create"), createSocial);
+router.put("/socials/:id", protect, requirePermission("update"), updateSocial);
+router.delete(
+  "/socials/:id",
+  protect,
+  requirePermission("delete"),
+  deleteSocial
+);
 
 export default router;

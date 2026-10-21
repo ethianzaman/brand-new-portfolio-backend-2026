@@ -23,6 +23,7 @@ const blog_routes_1 = __importDefault(require("./routes/blog.routes"));
 const home_routes_1 = __importDefault(require("./routes/home.routes"));
 const settings_routes_1 = __importDefault(require("./routes/settings.routes"));
 const events_routes_1 = __importDefault(require("./routes/events.routes"));
+const user_routes_1 = __importDefault(require("./routes/user.routes"));
 const app = (0, express_1.default)();
 const PORT = process.env.PORT ?? 5000;
 /** Allowed browser origins, comma-separated for local + production. */
@@ -67,6 +68,7 @@ app.use("/api/leads", lead_routes_1.default);
 app.use("/api/blogs", blog_routes_1.default);
 app.use("/api/home", home_routes_1.default);
 app.use("/api/settings", settings_routes_1.default);
+app.use("/api/users", user_routes_1.default);
 // ── Health check ──────────────────────────────────────────────────────
 app.get("/api/health", (_, res) => {
     res.json({ success: true, message: "API is running" });
@@ -83,17 +85,34 @@ async function start() {
         console.log(`   SSE stream:   http://localhost:${PORT}/api/events`);
     });
 }
-// ── Seed admin on first start ─────────────────────────────────────────
+// ── Seed / bootstrap the first admin on start ────────────────────────
+// One-time bootstrap: creates the ADMIN_EMAIL account with the admin role,
+// or repairs that specific account (promote to active admin) if it already
+// exists with a missing/invalid role. No other account is ever touched —
+// other existing users keep their role and must be migrated explicitly
+// (npm run migrate:roles).
 async function seedAdmin() {
-    const email = process.env.ADMIN_EMAIL;
+    const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
     if (!email) {
         console.warn("⚠️  ADMIN_EMAIL is not set — skipping admin seed");
         return;
     }
-    const exists = await User_1.User.findOne({ email });
-    if (!exists) {
-        await User_1.User.create({ email, password: process.env.ADMIN_PASSWORD });
+    const password = process.env.ADMIN_PASSWORD;
+    const existing = await User_1.User.findOne({ email });
+    if (!existing) {
+        if (!password) {
+            console.warn("⚠️  ADMIN_EMAIL is set but ADMIN_PASSWORD is not — skipping admin seed");
+            return;
+        }
+        await User_1.User.create({ email, password, role: "admin", isActive: true });
         console.log("✅ Admin user seeded");
+        return;
+    }
+    if (existing.role !== "admin" || existing.isActive !== true) {
+        existing.role = "admin";
+        existing.isActive = true;
+        await existing.save();
+        console.log(`✅ Bootstrap account ${email} promoted to active admin`);
     }
 }
 start().catch((error) => {

@@ -105,4 +105,23 @@ const BlogSchema = new Schema<IBlog>(
 );
 
 
+/**
+ * Indexes for the dashboard list endpoint (`GET /api/blogs/all`).
+ *
+ * The list query is always `filter → sort(createdAt) → skip → limit`, so the
+ * compound indexes below let MongoDB satisfy the filter AND the sort from a
+ * single index instead of sorting the whole collection in memory.
+ *
+ *  { status, createdAt }  — the default listing (drafts + published, newest first)
+ *  { category, createdAt }— the same listing narrowed to one category
+ *  { title } / { tags }    — the search path (regex is matched against the index)
+ *  { featured }           — the "featured" stat card count
+ */
+BlogSchema.index({ status: 1, createdAt: -1 });
+BlogSchema.index({ category: 1, createdAt: -1 });
+BlogSchema.index({ createdAt: -1 });
+BlogSchema.index({ title: 1 });
+BlogSchema.index({ tags: 1 });
+BlogSchema.index({ featured: 1 });
+
 export const Blog = mongoose.model<IBlog>("Blog", BlogSchema);

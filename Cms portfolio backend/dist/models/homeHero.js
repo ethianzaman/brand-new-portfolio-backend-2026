@@ -68,6 +68,7 @@ const mongoose_1 = require("mongoose");
 const SocialSchema = new mongoose_1.Schema({
     label: { type: String, required: true, trim: true, maxlength: 50 },
     href: { type: String, required: true, trim: true, maxlength: 500 },
+    icon: { type: String, default: "", trim: true, maxlength: 30 },
 }, { _id: true });
 const StatsSchema = new mongoose_1.Schema({
     value: { type: String, required: true, trim: true, maxlength: 50 },

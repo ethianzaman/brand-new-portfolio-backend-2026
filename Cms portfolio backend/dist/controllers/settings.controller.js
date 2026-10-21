@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSiteSettings = getSiteSettings;
 exports.updateBrand = updateBrand;
+exports.updateSocials = updateSocials;
 const SiteSettings_1 = require("../models/SiteSettings");
 const uploadMiddleware_1 = require("../middleware/uploadMiddleware");
 const publish_1 = require("../lib/publish");
@@ -9,6 +10,8 @@ const TITLE_MAX = 120;
 const TAGLINE_MAX = 160;
 const ICON_MAX = 40;
 const URL_MAX = 500;
+const LABEL_MAX = 50;
+const MAX_SOCIALS = 12;
 const LOGO_TYPES = ["icon", "image"];
 /** Map the Mongoose document to the public `settings` envelope shape. */
 function serializeSettings(doc) {
@@ -24,12 +27,56 @@ function serializeSettings(doc) {
                 url: logo.url ?? "",
             },
         },
+        socials: (doc.socials ?? []).map((social) => ({
+            label: social.label ?? "",
+            href: social.href ?? "",
+            icon: social.icon || "link",
+        })),
     };
+}
+/** `https://` (or mailto/tel/#//) — same rule the home controller enforces. */
+function isValidUrl(url) {
+    return /^(https?:\/\/|mailto:|tel:|#|\/)/.test(url);
+}
+/** Parse the socials list from either JSON (FormData) or a real array. */
+function parseSocials(raw) {
+    let list = raw;
+    if (typeof raw === "string") {
+        try {
+            list = JSON.parse(raw);
+        }
+        catch {
+            return null;
+        }
+    }
+    if (!Array.isArray(list))
+        return null;
+    const socials = [];
+    for (const item of list) {
+        if (!item || typeof item !== "object")
+            return null;
+        const label = String(item.label ?? "").trim();
+        const href = String(item.href ?? "").trim();
+        const icon = String(item.icon ?? "link").trim() || "link";
+        // Skip blank rows (leftovers from "Add link"), but reject half-filled ones.
+        if (!label && !href)
+            continue;
+        if (!label || !href)
+            return null;
+        if (!isValidUrl(href))
+            return null;
+        socials.push({
+            label: label.slice(0, LABEL_MAX),
+            href: href.slice(0, URL_MAX),
+            icon: icon.slice(0, ICON_MAX),
+        });
+    }
+    return socials;
 }
 /**
  * Singleton accessor — same get-or-create idea as the Contact/Home controllers.
- * Defaults seed the currently shipped brand so the public site keeps rendering
- * exactly as before until an admin changes it.
+ * Defaults seed the currently shipped brand + socials so the public site keeps
+ * rendering exactly as before until an admin changes it.
  */
 async function getOrCreateDoc() {
     let doc = await SiteSettings_1.SiteSettings.findOne();
@@ -40,6 +87,11 @@ async function getOrCreateDoc() {
                 tagline: "Full Stack Engineer",
                 logo: { type: "icon", icon: "zap", url: "" },
             },
+            socials: [
+                { label: "GitHub", href: "https://github.com", icon: "github" },
+                { label: "LinkedIn", href: "https://linkedin.com", icon: "linkedin" },
+                { label: "Twitter", href: "https://twitter.com", icon: "twitter" },
+            ],
         });
     }
     return doc;
@@ -170,6 +222,40 @@ async function updateBrand(req, res) {
         res.status(500).json({
             success: false,
             message: err instanceof Error ? err.message : "Server error",
+        });
+    }
+}
+// ── PUT /api/settings/socials — replace the shared social links list ───────────
+async function updateSocials(req, res) {
+    try {
+        const parsed = parseSocials(req.body?.socials);
+        if (!parsed) {
+            res.status(400).json({
+                success: false,
+                message: "socials must be a JSON array of { label, href, icon } with valid URLs",
+            });
+            return;
+        }
+        if (parsed.length > MAX_SOCIALS) {
+            res.status(400).json({
+                success: false,
+                message: `Maximum ${MAX_SOCIALS} social links allowed`,
+            });
+            return;
+        }
+        const doc = await getOrCreateDoc();
+        doc.socials = parsed;
+        await doc.save();
+        await (0, publish_1.publishChange)("settings");
+        res.status(200).json({
+            success: true,
+            settings: serializeSettings(doc),
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err instanceof Error ? err.message : "Failed to update socials",
         });
     }
 }

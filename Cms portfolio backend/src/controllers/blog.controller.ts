@@ -5,6 +5,19 @@ import {
   uploadToCloudinary,
 } from "../middleware/uploadMiddleware";
 import { publishChange } from "../lib/publish";
+import {
+  buildPageMeta,
+  buildSearchRegex,
+  clampInt,
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+  MAX_QUERY_TIME_MS,
+  resolveSort,
+} from "../utils/query";
+import { serializeDocs } from "../utils/serialize";
+
+/** Fields the dashboard list is allowed to sort by. */
+const BLOG_SORT_FIELDS = ["createdAt", "title", "readTime", "status"] as const;
 
 function generateSlug(title: string): string {
   return title
@@ -27,6 +40,7 @@ export async function getBlogs(req: Request, res: Response): Promise<void> {
       status = "published",
       page = "1",
       pageSize = "6",
+      q,
     } = req.query;
 
     const filter: Record<string, unknown> = {};
@@ -37,22 +51,33 @@ export async function getBlogs(req: Request, res: Response): Promise<void> {
       filter.status = status;
     }
 
-    const pageNum = parseInt(page as string);
-    const size = parseInt(pageSize as string);
+    const rx = buildSearchRegex(q);
+    if (rx) {
+      filter.$or = [{ title: rx }, { excerpt: rx }, { tags: rx }];
+    }
+
+    const pageNum = clampInt(page, 1, 1, 10_000);
+    const size = clampInt(pageSize, 6, 1, MAX_PAGE_SIZE);
     const skip = (pageNum - 1) * size;
 
     const [blogs, total] = await Promise.all([
-      Blog.find(filter).sort({ createdAt: -1 }).skip(skip).limit(size),
-      Blog.countDocuments(filter),
+      Blog.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(size)
+        // The public listing never renders the article body — the detail page
+        // fetches it on its own. Dropping it here is the single biggest
+        // payload win on the blog page.
+        .select("-content")
+        .lean()
+        .maxTimeMS(MAX_QUERY_TIME_MS),
+      Blog.countDocuments(filter).maxTimeMS(MAX_QUERY_TIME_MS),
     ]);
 
     res.status(200).json({
       success: true,
-      blogs,
-      total,
-      hasMore: skip + blogs.length < total,
-      page: pageNum,
-      pageSize: size,
+      blogs: serializeDocs(blogs),
+      ...buildPageMeta(blogs, total, pageNum, size),
     });
   } catch {
     res.status(500).json({ success: false, message: "Server error" });
@@ -231,16 +256,121 @@ export async function deleteBlog(req: Request, res: Response): Promise<void> {
   }
 }
 
-// GET /api/blogs/all — protected (dashboard: draft + published)
-export async function getAllBlogs(req: Request, res: Response) {
+// GET /api/blogs/all — dashboard list (drafts + published), paginated + searchable
+//
+// Query: ?page=1&pageSize=10&q=react&status=all&category=all&sort=createdAt&dir=desc
+//
+// The filtering, searching and sorting all happen in MongoDB — the dashboard
+// receives one page of rows plus the total count, never the whole collection.
+export async function getAllBlogs(
+  req: Request,
+  res: Response,
+): Promise<void> {
   try {
-    const blogs = await Blog.find().sort({ createdAt: -1 });
+    const { page, pageSize, q, status, category, sort, dir } = req.query;
+
+    const pageNum = clampInt(page, 1, 1, 10_000);
+    const size = clampInt(pageSize, DEFAULT_PAGE_SIZE, 1, MAX_PAGE_SIZE);
+    const skip = (pageNum - 1) * size;
+
+    const filter: Record<string, unknown> = {};
+    if (typeof status === "string" && status !== "all") {
+      filter.status = status;
+    }
+    if (typeof category === "string" && category !== "all") {
+      filter.category = category;
+    }
+
+    const rx = buildSearchRegex(q);
+    if (rx) {
+      filter.$or = [
+        { title: rx },
+        { excerpt: rx },
+        { tags: rx },
+        { category: rx },
+      ];
+    }
+
+    const sortSpec = resolveSort(sort, dir, BLOG_SORT_FIELDS, { createdAt: -1 });
+
+    const [blogs, total] = await Promise.all([
+      Blog.find(filter)
+        .sort(sortSpec)
+        .skip(skip)
+        .limit(size)
+        .lean()
+        .maxTimeMS(MAX_QUERY_TIME_MS),
+      Blog.countDocuments(filter).maxTimeMS(MAX_QUERY_TIME_MS),
+    ]);
 
     res.status(200).json({
       success: true,
-      blogs,
+      blogs: serializeDocs(blogs),
+      ...buildPageMeta(blogs, total, pageNum, size),
     });
-    
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+}
+
+// GET /api/blogs/stats — dashboard stat cards
+//
+// One aggregation pass over the collection instead of pulling every document
+// into the browser and counting there. Kept on its own endpoint so the numbers
+// are cached independently of the page the user is looking at.
+export async function getBlogStats(
+  _req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    // `$facet` runs both facets against a single scan of the collection.
+    const [result] = await Blog.aggregate([
+      {
+        $facet: {
+          totals: [
+            {
+              $group: {
+                _id: null,
+                total: { $sum: 1 },
+                published: {
+                  $sum: { $cond: [{ $eq: ["$status", "published"] }, 1, 0] },
+                },
+                featured: {
+                  $sum: { $cond: [{ $eq: ["$featured", true] }, 1, 0] },
+                },
+                readTime: { $sum: { $ifNull: ["$readTime", 0] } },
+              },
+            },
+          ],
+          byCategory: [
+            { $group: { _id: "$category", count: { $sum: 1 } } },
+            { $sort: { count: -1 } },
+          ],
+        },
+      },
+    ]).option({ maxTimeMS: MAX_QUERY_TIME_MS });
+
+    const row = result?.totals?.[0];
+
+    const byCategory: Record<string, number> = {};
+    for (const entry of result?.byCategory ?? []) {
+      if (!entry?._id) continue;
+      byCategory[entry._id] = entry.count;
+    }
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        total: row?.total ?? 0,
+        published: row?.published ?? 0,
+        featured: row?.featured ?? 0,
+        readTime: row?.readTime ?? 0,
+        byCategory,
+      },
+    });
   } catch {
     res.status(500).json({
       success: false,

@@ -55,6 +55,26 @@ const SiteBrandLogoSchema = new mongoose_1.Schema({
     _id: false,
     id: false,
 });
+const SiteSocialSchema = new mongoose_1.Schema({
+    label: {
+        type: String,
+        default: "",
+        trim: true,
+    },
+    href: {
+        type: String,
+        default: "",
+        trim: true,
+    },
+    icon: {
+        type: String,
+        default: "link",
+        trim: true,
+    },
+}, {
+    _id: false,
+    id: false,
+});
 const SiteSettingsSchema = new mongoose_1.Schema({
     brand: {
         name: {
@@ -71,6 +91,10 @@ const SiteSettingsSchema = new mongoose_1.Schema({
             type: SiteBrandLogoSchema,
             default: () => ({}),
         },
+    },
+    socials: {
+        type: [SiteSocialSchema],
+        default: [],
     },
 }, {
     timestamps: true,

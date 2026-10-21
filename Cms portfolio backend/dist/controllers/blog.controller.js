@@ -7,9 +7,14 @@ exports.createBlog = createBlog;
 exports.updateBlog = updateBlog;
 exports.deleteBlog = deleteBlog;
 exports.getAllBlogs = getAllBlogs;
+exports.getBlogStats = getBlogStats;
 const Blog_1 = require("../models/Blog");
 const uploadMiddleware_1 = require("../middleware/uploadMiddleware");
 const publish_1 = require("../lib/publish");
+const query_1 = require("../utils/query");
+const serialize_1 = require("../utils/serialize");
+/** Fields the dashboard list is allowed to sort by. */
+const BLOG_SORT_FIELDS = ["createdAt", "title", "readTime", "status"];
 function generateSlug(title) {
     return title
         .toLowerCase()
@@ -24,7 +29,7 @@ function calculateReadTime(content) {
 // GET /api/blogs — public, with pagination + filter
 async function getBlogs(req, res) {
     try {
-        const { category, status = "published", page = "1", pageSize = "6", } = req.query;
+        const { category, status = "published", page = "1", pageSize = "6", q, } = req.query;
         const filter = {};
         if (category && category !== "all") {
             filter.category = category;
@@ -32,20 +37,30 @@ async function getBlogs(req, res) {
         if (status && status !== "all") {
             filter.status = status;
         }
-        const pageNum = parseInt(page);
-        const size = parseInt(pageSize);
+        const rx = (0, query_1.buildSearchRegex)(q);
+        if (rx) {
+            filter.$or = [{ title: rx }, { excerpt: rx }, { tags: rx }];
+        }
+        const pageNum = (0, query_1.clampInt)(page, 1, 1, 10000);
+        const size = (0, query_1.clampInt)(pageSize, 6, 1, query_1.MAX_PAGE_SIZE);
         const skip = (pageNum - 1) * size;
         const [blogs, total] = await Promise.all([
-            Blog_1.Blog.find(filter).sort({ createdAt: -1 }).skip(skip).limit(size),
-            Blog_1.Blog.countDocuments(filter),
+            Blog_1.Blog.find(filter)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(size)
+                // The public listing never renders the article body — the detail page
+                // fetches it on its own. Dropping it here is the single biggest
+                // payload win on the blog page.
+                .select("-content")
+                .lean()
+                .maxTimeMS(query_1.MAX_QUERY_TIME_MS),
+            Blog_1.Blog.countDocuments(filter).maxTimeMS(query_1.MAX_QUERY_TIME_MS),
         ]);
         res.status(200).json({
             success: true,
-            blogs,
-            total,
-            hasMore: skip + blogs.length < total,
-            page: pageNum,
-            pageSize: size,
+            blogs: (0, serialize_1.serializeDocs)(blogs),
+            ...(0, query_1.buildPageMeta)(blogs, total, pageNum, size),
         });
     }
     catch {
@@ -203,13 +218,106 @@ async function deleteBlog(req, res) {
         });
     }
 }
-// GET /api/blogs/all — protected (dashboard: draft + published)
+// GET /api/blogs/all — dashboard list (drafts + published), paginated + searchable
+//
+// Query: ?page=1&pageSize=10&q=react&status=all&category=all&sort=createdAt&dir=desc
+//
+// The filtering, searching and sorting all happen in MongoDB — the dashboard
+// receives one page of rows plus the total count, never the whole collection.
 async function getAllBlogs(req, res) {
     try {
-        const blogs = await Blog_1.Blog.find().sort({ createdAt: -1 });
+        const { page, pageSize, q, status, category, sort, dir } = req.query;
+        const pageNum = (0, query_1.clampInt)(page, 1, 1, 10000);
+        const size = (0, query_1.clampInt)(pageSize, query_1.DEFAULT_PAGE_SIZE, 1, query_1.MAX_PAGE_SIZE);
+        const skip = (pageNum - 1) * size;
+        const filter = {};
+        if (typeof status === "string" && status !== "all") {
+            filter.status = status;
+        }
+        if (typeof category === "string" && category !== "all") {
+            filter.category = category;
+        }
+        const rx = (0, query_1.buildSearchRegex)(q);
+        if (rx) {
+            filter.$or = [
+                { title: rx },
+                { excerpt: rx },
+                { tags: rx },
+                { category: rx },
+            ];
+        }
+        const sortSpec = (0, query_1.resolveSort)(sort, dir, BLOG_SORT_FIELDS, { createdAt: -1 });
+        const [blogs, total] = await Promise.all([
+            Blog_1.Blog.find(filter)
+                .sort(sortSpec)
+                .skip(skip)
+                .limit(size)
+                .lean()
+                .maxTimeMS(query_1.MAX_QUERY_TIME_MS),
+            Blog_1.Blog.countDocuments(filter).maxTimeMS(query_1.MAX_QUERY_TIME_MS),
+        ]);
         res.status(200).json({
             success: true,
-            blogs,
+            blogs: (0, serialize_1.serializeDocs)(blogs),
+            ...(0, query_1.buildPageMeta)(blogs, total, pageNum, size),
+        });
+    }
+    catch {
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+        });
+    }
+}
+// GET /api/blogs/stats — dashboard stat cards
+//
+// One aggregation pass over the collection instead of pulling every document
+// into the browser and counting there. Kept on its own endpoint so the numbers
+// are cached independently of the page the user is looking at.
+async function getBlogStats(_req, res) {
+    try {
+        // `$facet` runs both facets against a single scan of the collection.
+        const [result] = await Blog_1.Blog.aggregate([
+            {
+                $facet: {
+                    totals: [
+                        {
+                            $group: {
+                                _id: null,
+                                total: { $sum: 1 },
+                                published: {
+                                    $sum: { $cond: [{ $eq: ["$status", "published"] }, 1, 0] },
+                                },
+                                featured: {
+                                    $sum: { $cond: [{ $eq: ["$featured", true] }, 1, 0] },
+                                },
+                                readTime: { $sum: { $ifNull: ["$readTime", 0] } },
+                            },
+                        },
+                    ],
+                    byCategory: [
+                        { $group: { _id: "$category", count: { $sum: 1 } } },
+                        { $sort: { count: -1 } },
+                    ],
+                },
+            },
+        ]).option({ maxTimeMS: query_1.MAX_QUERY_TIME_MS });
+        const row = result?.totals?.[0];
+        const byCategory = {};
+        for (const entry of result?.byCategory ?? []) {
+            if (!entry?._id)
+                continue;
+            byCategory[entry._id] = entry.count;
+        }
+        res.status(200).json({
+            success: true,
+            stats: {
+                total: row?.total ?? 0,
+                published: row?.published ?? 0,
+                featured: row?.featured ?? 0,
+                readTime: row?.readTime ?? 0,
+                byCategory,
+            },
         });
     }
     catch {
