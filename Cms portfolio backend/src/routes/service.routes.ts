@@ -1,17 +1,19 @@
 import { Router } from "express";
 import {
   getServices,
+  getServiceStats,
   createService,
   updateService,
   deleteService,
 } from "../controllers/service.controller";
-import { protect } from "../middleware/auth";
+import { protect, requirePermission } from "../middleware/auth";
 
 const router = Router();
 
 router.get("", getServices);
-router.post("/create", protect, createService);
-router.put("/:id", protect, updateService);
-router.delete("/:id", protect, deleteService);
+router.get("/stats", getServiceStats);
+router.post("/create", protect, requirePermission("create"), createService);
+router.put("/:id", protect, requirePermission("update"), updateService);
+router.delete("/:id", protect, requirePermission("delete"), deleteService);
 
 export default router;

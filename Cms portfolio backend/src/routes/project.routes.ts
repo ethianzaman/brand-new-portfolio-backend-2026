@@ -6,8 +6,9 @@ import {
   updateProject,
   deleteProject,
   getAllProjects,
+  getProjectStats,
 } from "../controllers/project.controller";
-import { protect } from "../middleware/auth";
+import { protect, requirePermission } from "../middleware/auth";
 import { upload } from "../middleware/uploadMiddleware";
 
 const router = Router();
@@ -19,13 +20,25 @@ router.get("/", getProjects);
 // "/all" is matched as an id and Project.findById("all") throws a CastError
 // (HTTP 500).
 router.get("/all", getAllProjects);
+router.get("/stats", getProjectStats);
 router.get("/:id", getProjectById);
 
 // Protected — dashboard only
-// router.post("/", createProject);
-router.post("/create", protect, upload.single("image"), createProject);
-// router.put("/:id", updateProject);
-router.put("/:id", protect, upload.single("image"), updateProject);
-router.delete("/:id", protect, deleteProject);
+// Create/update: Admin, Manager, Editor.  Delete: Admin, Manager.
+router.post(
+  "/create",
+  protect,
+  requirePermission("create"),
+  upload.single("image"),
+  createProject
+);
+router.put(
+  "/:id",
+  protect,
+  requirePermission("update"),
+  upload.single("image"),
+  updateProject
+);
+router.delete("/:id", protect, requirePermission("delete"), deleteProject);
 
 export default router;

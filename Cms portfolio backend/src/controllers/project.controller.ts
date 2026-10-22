@@ -5,6 +5,24 @@ import {
   uploadToCloudinary,
 } from "../middleware/uploadMiddleware";
 import { publishChange } from "../lib/publish";
+import {
+  buildPageMeta,
+  buildSearchRegex,
+  clampInt,
+  DEFAULT_PAGE_SIZE,
+  MAX_PAGE_SIZE,
+  MAX_QUERY_TIME_MS,
+  resolveSort,
+} from "../utils/query";
+import { serializeDocs } from "../utils/serialize";
+
+/** Fields the dashboard list is allowed to sort by. */
+const PROJECT_SORT_FIELDS = [
+  "title",
+  "category",
+  "createdAt",
+  "featured",
+] as const;
 
 // GET /api/projects — public, with pagination + filter
 export async function getProjects(req: Request, res: Response): Promise<void> {
@@ -16,22 +34,24 @@ export async function getProjects(req: Request, res: Response): Promise<void> {
       filter.category = category;
     }
 
-    const pageNum = parseInt(page as string);
-    const size = parseInt(pageSize as string);
+    const pageNum = clampInt(page, 1, 1, 10_000);
+    const size = clampInt(pageSize, 3, 1, MAX_PAGE_SIZE);
     const skip = (pageNum - 1) * size;
 
     const [projects, total] = await Promise.all([
-      Project.find(filter).sort({ createdAt: -1 }).skip(skip).limit(size),
-      Project.countDocuments(filter),
+      Project.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(size)
+        .lean()
+        .maxTimeMS(MAX_QUERY_TIME_MS),
+      Project.countDocuments(filter).maxTimeMS(MAX_QUERY_TIME_MS),
     ]);
 
     res.status(200).json({
       success: true,
-      projects,
-      total,
-      hasMore: skip + projects.length < total,
-      page: pageNum,
-      pageSize: size,
+      projects: serializeDocs(projects),
+      ...buildPageMeta(projects, total, pageNum, size),
     });
   } catch {
     res.status(500).json({ success: false, message: "Server error" });
@@ -193,13 +213,96 @@ export async function deleteProject(
   }
 }
 
-export async function getAllProjects(req: Request, res: Response) {
+// GET /api/projects/all — dashboard list, paginated + searchable
+//
+// Query: ?page=1&pageSize=10&q=react&category=all&sort=title&dir=asc
+export async function getAllProjects(
+  req: Request,
+  res: Response,
+): Promise<void> {
   try {
-    const projects = await Project.find().sort({ createdAt: -1 });
+    const { page, pageSize, q, category, sort, dir } = req.query;
+
+    const pageNum = clampInt(page, 1, 1, 10_000);
+    const size = clampInt(pageSize, DEFAULT_PAGE_SIZE, 1, MAX_PAGE_SIZE);
+    const skip = (pageNum - 1) * size;
+
+    const filter: Record<string, unknown> = {};
+    if (typeof category === "string" && category !== "all") {
+      filter.category = category;
+    }
+
+    const rx = buildSearchRegex(q);
+    if (rx) {
+      filter.$or = [
+        { title: rx },
+        { description: rx },
+        { tags: rx },
+        { category: rx },
+      ];
+    }
+
+    const sortSpec = resolveSort(sort, dir, PROJECT_SORT_FIELDS, {
+      createdAt: -1,
+    });
+
+    const [projects, total] = await Promise.all([
+      Project.find(filter)
+        .sort(sortSpec)
+        .skip(skip)
+        .limit(size)
+        .lean()
+        .maxTimeMS(MAX_QUERY_TIME_MS),
+      Project.countDocuments(filter).maxTimeMS(MAX_QUERY_TIME_MS),
+    ]);
 
     res.status(200).json({
       success: true,
-      projects,
+      projects: serializeDocs(projects),
+      ...buildPageMeta(projects, total, pageNum, size),
+    });
+  } catch {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+}
+
+// GET /api/projects/stats — dashboard stat cards
+export async function getProjectStats(
+  _req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const [row] = await Project.aggregate([
+      {
+        $facet: {
+          byCategory: [
+            { $group: { _id: "$category", count: { $sum: 1 } } },
+          ],
+          featured: [
+            { $match: { featured: true } },
+            { $count: "count" },
+          ],
+        },
+      },
+    ]).option({ maxTimeMS: MAX_QUERY_TIME_MS });
+
+    const byCategory: Record<string, number> = {};
+    for (const entry of row?.byCategory ?? []) {
+      byCategory[String(entry._id)] = entry.count;
+    }
+
+    const total = Object.values(byCategory).reduce((sum, n) => sum + n, 0);
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        total,
+        featured: row?.featured?.[0]?.count ?? 0,
+        byCategory,
+      },
     });
   } catch {
     res.status(500).json({

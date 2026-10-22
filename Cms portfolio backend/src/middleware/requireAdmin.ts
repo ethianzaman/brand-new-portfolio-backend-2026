@@ -1,18 +1,3 @@
-import { Response, NextFunction } from 'express'
-import { AuthenticatedRequest } from './auth'
-
-
-export const requireAdmin = (
-  req: AuthenticatedRequest,
-  res: Response,
-  next: NextFunction
-): void => {
-  if (!req.user || req.user.role !== 'admin') {
-    res.status(403).json({
-      message: 'Access denied. Admin permission required.',
-    })
-    return
-  }
-
-  next()
-}
+// Re-exported from ./auth so existing imports keep working while the
+// authorization logic lives in a single place.
+export { requireAdmin } from './auth'

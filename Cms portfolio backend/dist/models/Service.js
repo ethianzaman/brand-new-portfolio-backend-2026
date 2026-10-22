@@ -68,5 +68,17 @@ const ServiceSchema = new mongoose_1.Schema({
         },
     },
 });
+/**
+ * Indexes for the list endpoint (`GET /api/services`).
+ *
+ *  { createdAt }   — the default listing (oldest first)
+ *  { title }       — the search path
+ *  { tags }        — the search path
+ *  { popular }     — the "popular" stat card count
+ */
+ServiceSchema.index({ createdAt: 1 });
+ServiceSchema.index({ title: 1 });
+ServiceSchema.index({ tags: 1 });
+ServiceSchema.index({ popular: 1 });
 // export const Service = mongoose.model<IService>("Service", ServiceSchema);
 exports.Service = mongoose_1.default.models.Service || mongoose_1.default.model("Service", ServiceSchema);
