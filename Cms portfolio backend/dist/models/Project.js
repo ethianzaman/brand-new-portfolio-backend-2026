@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Project = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+const seoSchema_1 = require("./shared/seoSchema");
 function transformDocument(_, ret) {
     ret.id = ret._id.toString();
     delete ret._id;
@@ -86,6 +87,18 @@ const ProjectSchema = new mongoose_1.Schema({
     isPlaceholder: {
         type: Boolean,
         default: false,
+    },
+    // Optional, additive. Legacy projects keep working without a slug/seo.
+    slug: {
+        type: String,
+        default: undefined,
+        trim: true,
+        lowercase: true,
+        index: { unique: true, sparse: true },
+    },
+    seo: {
+        type: seoSchema_1.SeoSchema,
+        default: undefined,
     },
 }, {
     timestamps: true,

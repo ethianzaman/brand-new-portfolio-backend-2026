@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   getProjects,
   getProjectById,
+  getProjectBySlug,
   createProject,
   updateProject,
   deleteProject,
@@ -21,6 +22,7 @@ router.get("/", getProjects);
 // (HTTP 500).
 router.get("/all", getAllProjects);
 router.get("/stats", getProjectStats);
+router.get("/slug/:slug", getProjectBySlug);
 router.get("/:id", getProjectById);
 
 // Protected — dashboard only

@@ -3,9 +3,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getSiteSettings = getSiteSettings;
 exports.updateBrand = updateBrand;
 exports.updateSocials = updateSocials;
+exports.updateSeo = updateSeo;
+exports.getPageSeo = getPageSeo;
+exports.updatePageSeo = updatePageSeo;
 const SiteSettings_1 = require("../models/SiteSettings");
 const uploadMiddleware_1 = require("../middleware/uploadMiddleware");
 const publish_1 = require("../lib/publish");
+const seo_1 = require("../utils/seo");
+const PageSeo_1 = require("../models/PageSeo");
 const TITLE_MAX = 120;
 const TAGLINE_MAX = 160;
 const ICON_MAX = 40;
@@ -32,6 +37,31 @@ function serializeSettings(doc) {
             href: social.href ?? "",
             icon: social.icon || "link",
         })),
+        seo: serializeSiteSeo(doc.seo),
+    };
+}
+const TITLE_TEMPLATE_MAX = 120;
+const GLOBAL_DESC_MAX = 160;
+const GLOBAL_TITLE_MAX = 70;
+const TWITTER_MAX = 100;
+const SITE_URL_MAX = 300;
+/** Always returns the neutral global-SEO shape (legacy docs included). */
+function serializeSiteSeo(seo) {
+    const raw = (seo ?? {});
+    const pick = (key, max) => {
+        const value = raw[key];
+        return typeof value === "string" ? value.trim().slice(0, max) : "";
+    };
+    const template = raw.defaultTitleTemplate;
+    return {
+        defaultMetaTitle: pick("defaultMetaTitle", GLOBAL_TITLE_MAX),
+        defaultTitleTemplate: typeof template === "string" && template.trim()
+            ? template.trim().slice(0, TITLE_TEMPLATE_MAX)
+            : "%s",
+        defaultMetaDescription: pick("defaultMetaDescription", GLOBAL_DESC_MAX),
+        defaultOgImage: pick("defaultOgImage", 500),
+        twitterHandle: pick("twitterHandle", TWITTER_MAX),
+        siteUrl: pick("siteUrl", SITE_URL_MAX),
     };
 }
 /** `https://` (or mailto/tel/#//) — same rule the home controller enforces. */
@@ -256,6 +286,128 @@ async function updateSocials(req, res) {
         res.status(400).json({
             success: false,
             message: err instanceof Error ? err.message : "Failed to update socials",
+        });
+    }
+}
+// ── PUT /api/settings/seo — global SEO defaults ────────────────────────────────
+//
+// Global defaults own the title template + canonical origin, which only make
+// sense once for the whole site. `siteUrl` and `defaultOgImage` are validated
+// against the same URL policy as per-item SEO so a bad value can never reach
+// <link rel="canonical"> or og:image.
+async function updateSeo(req, res) {
+    try {
+        const body = req.body ?? {};
+        const siteUrl = String(body.siteUrl ?? "").trim().slice(0, SITE_URL_MAX);
+        if (siteUrl && !(0, seo_1.isSafeCanonical)(siteUrl)) {
+            res.status(400).json({
+                success: false,
+                message: "siteUrl must be an https URL",
+            });
+            return;
+        }
+        const defaultOgImage = String(body.defaultOgImage ?? "")
+            .trim()
+            .slice(0, 500);
+        if (defaultOgImage && !(0, seo_1.isSafeImage)(defaultOgImage)) {
+            res.status(400).json({
+                success: false,
+                message: "defaultOgImage must be an https URL or a same-site path",
+            });
+            return;
+        }
+        const template = String(body.defaultTitleTemplate ?? "").trim();
+        // A usable template MUST contain exactly one `%s` placeholder, otherwise a
+        // page title would either be dropped or duplicated.
+        if (template && template.split("%s").length !== 2) {
+            res.status(400).json({
+                success: false,
+                message: 'defaultTitleTemplate must contain exactly one "%s" placeholder',
+            });
+            return;
+        }
+        const doc = await getOrCreateDoc();
+        doc.seo = {
+            defaultMetaTitle: String(body.defaultMetaTitle ?? "")
+                .trim()
+                .slice(0, GLOBAL_TITLE_MAX),
+            defaultTitleTemplate: (template || "%s").slice(0, TITLE_TEMPLATE_MAX),
+            defaultMetaDescription: String(body.defaultMetaDescription ?? "")
+                .trim()
+                .slice(0, GLOBAL_DESC_MAX),
+            defaultOgImage,
+            twitterHandle: String(body.twitterHandle ?? "")
+                .trim()
+                .slice(0, TWITTER_MAX),
+            siteUrl,
+        };
+        await doc.save();
+        await (0, publish_1.publishChange)("settings");
+        await (0, publish_1.publishChange)("seo");
+        res.status(200).json({
+            success: true,
+            settings: serializeSettings(doc),
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err instanceof Error ? err.message : "Failed to update SEO",
+        });
+    }
+}
+// ── GET /api/settings/pages/seo — all static-page SEO overrides ────────────────
+//
+// Returns one entry per known page key with the neutral shape when unset, so
+// the public resolver always has a complete map.
+async function getPageSeo(_req, res) {
+    try {
+        const docs = await PageSeo_1.PageSeo.find().lean();
+        const byPage = {};
+        for (const key of PageSeo_1.SEO_PAGE_KEYS) {
+            byPage[key] = (0, seo_1.serializeSeo)(docs.find((d) => d.page === key)?.seo);
+        }
+        res.status(200).json({ success: true, pages: byPage });
+    }
+    catch (err) {
+        res.status(500).json({
+            success: false,
+            message: err instanceof Error ? err.message : "Server error",
+        });
+    }
+}
+// ── PUT /api/settings/pages/seo/:page — upsert one page's SEO override ─────────
+async function updatePageSeo(req, res) {
+    try {
+        const page = req.params.page;
+        if (!PageSeo_1.SEO_PAGE_KEYS.includes(page)) {
+            res.status(400).json({
+                success: false,
+                message: `page must be one of: ${PageSeo_1.SEO_PAGE_KEYS.join(", ")}`,
+            });
+            return;
+        }
+        const seo = (0, seo_1.normaliseSeo)(req.body?.seo ?? req.body);
+        if (seo === null) {
+            res.status(400).json({
+                success: false,
+                message: "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+            });
+            return;
+        }
+        const doc = await PageSeo_1.PageSeo.findOneAndUpdate({ page }, { $set: { page, seo } }, { new: true, upsert: true, runValidators: true, setDefaultsOnInsert: true });
+        await (0, publish_1.publishChange)("seo");
+        await (0, publish_1.publishChange)(page);
+        res.status(200).json({
+            success: true,
+            page,
+            seo: (0, seo_1.serializeSeo)(doc?.seo),
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            success: false,
+            message: err instanceof Error ? err.message : "Failed to update page SEO",
         });
     }
 }

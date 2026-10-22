@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Service = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+const seoSchema_1 = require("./shared/seoSchema");
 const ServiceSchema = new mongoose_1.Schema({
     icon: { type: String, required: true },
     title: { type: String, required: true, trim: true },
@@ -43,6 +44,17 @@ const ServiceSchema = new mongoose_1.Schema({
     tags: [{ type: String }],
     color: { type: String, default: "#6366f1" },
     popular: { type: Boolean, default: false },
+    slug: {
+        type: String,
+        default: undefined,
+        trim: true,
+        lowercase: true,
+        index: { unique: true, sparse: true },
+    },
+    seo: {
+        type: seoSchema_1.SeoSchema,
+        default: undefined,
+    },
 }, {
     timestamps: true,
     toJSON: {

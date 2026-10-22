@@ -26,6 +26,26 @@ export interface ISiteSocial {
   icon: string;
 }
 
+/**
+ * Global SEO defaults. Distinct from the per-item `ISeo`: the global record
+ * also owns the title template and the canonical site origin, which only make
+ * sense once for the whole site.
+ */
+export interface ISiteSeo {
+  defaultMetaTitle: string;
+  defaultTitleTemplate: string;
+  defaultMetaDescription: string;
+  defaultOgImage: string;
+  /** Twitter/X handle, e.g. "@ethian" — used for twitter:site. */
+  twitterHandle: string;
+  /**
+   * Optional canonical origin override for this site, e.g.
+   * "https://ethian.dev". When empty the public site falls back to the
+   * validated SITE_URL environment variable.
+   */
+  siteUrl: string;
+}
+
 export interface ISiteSettings extends Document {
   brand: {
     name: string;
@@ -37,6 +57,12 @@ export interface ISiteSettings extends Document {
    * they are never duplicated per-section. The whole array is replaced on save.
    */
   socials: ISiteSocial[];
+
+  /**
+   * Global SEO defaults, managed from the dashboard. Optional/additive so the
+   * existing settings document keeps working untouched.
+   */
+  seo?: ISiteSeo;
 }
 
 const SiteBrandLogoSchema = new Schema<ISiteBrandLogo>(
@@ -87,6 +113,31 @@ const SiteSocialSchema = new Schema<ISiteSocial>(
   },
 );
 
+const SiteSeoSchema = new Schema<ISiteSeo>(
+  {
+    defaultMetaTitle: { type: String, default: "", trim: true, maxlength: 70 },
+    defaultTitleTemplate: {
+      type: String,
+      default: "%s",
+      trim: true,
+      maxlength: 120,
+    },
+    defaultMetaDescription: {
+      type: String,
+      default: "",
+      trim: true,
+      maxlength: 160,
+    },
+    defaultOgImage: { type: String, default: "", trim: true, maxlength: 500 },
+    twitterHandle: { type: String, default: "", trim: true, maxlength: 100 },
+    siteUrl: { type: String, default: "", trim: true, maxlength: 300 },
+  },
+  {
+    _id: false,
+    id: false,
+  },
+);
+
 const SiteSettingsSchema = new Schema<ISiteSettings>(
   {
     brand: {
@@ -108,6 +159,11 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     socials: {
       type: [SiteSocialSchema],
       default: [],
+    },
+
+    seo: {
+      type: SiteSeoSchema,
+      default: undefined,
     },
   },
   {
