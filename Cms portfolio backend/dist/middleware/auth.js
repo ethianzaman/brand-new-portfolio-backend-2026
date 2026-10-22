@@ -26,6 +26,14 @@ exports.CMS_PERMISSIONS = {
     users: ['admin'],
 };
 /**
+ * Authentication responses must never be cached by a proxy, a browser or a
+ * CDN — a cached 401/403 could otherwise be replayed to a different visitor.
+ */
+function noStore(res) {
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Pragma', 'no-cache');
+}
+/**
  * Authentication only — verifies the JWT cookie, loads the user's CURRENT
  * role and account status from the database, and rejects missing, invalid,
  * expired, deleted or disabled accounts.
@@ -36,6 +44,7 @@ exports.CMS_PERMISSIONS = {
 const protect = async (req, res, next) => {
     const token = req.cookies?.token;
     if (!token) {
+        noStore(res);
         res.status(401).json({
             success: false,
             message: 'Access denied. No token provided.',
@@ -47,6 +56,7 @@ const protect = async (req, res, next) => {
         decoded = jsonwebtoken_1.default.verify(token, env_1.JWT_SECRET);
     }
     catch {
+        noStore(res);
         res.status(401).json({
             success: false,
             message: 'Invalid or expired token.',
@@ -54,6 +64,7 @@ const protect = async (req, res, next) => {
         return;
     }
     if (typeof decoded.id !== 'string') {
+        noStore(res);
         res.status(401).json({
             success: false,
             message: 'Invalid token payload.',
@@ -62,6 +73,7 @@ const protect = async (req, res, next) => {
     }
     const user = await User_1.User.findById(decoded.id).select('email role isActive');
     if (!user) {
+        noStore(res);
         res.status(401).json({
             success: false,
             message: 'User no longer exists.',
@@ -69,6 +81,7 @@ const protect = async (req, res, next) => {
         return;
     }
     if (user.isActive === false) {
+        noStore(res);
         res.status(403).json({
             success: false,
             message: 'This account has been disabled. Contact the administrator.',
@@ -77,6 +90,7 @@ const protect = async (req, res, next) => {
     }
     // A user with a missing/legacy/invalid role gets no access at all.
     if (!User_1.USER_ROLES.includes(user.role)) {
+        noStore(res);
         res.status(403).json({
             success: false,
             message: 'Your account does not have a valid role assigned.',
