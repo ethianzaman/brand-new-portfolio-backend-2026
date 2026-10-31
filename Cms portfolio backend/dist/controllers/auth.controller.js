@@ -14,6 +14,14 @@ const cookieOptions = {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
 };
 /**
+ * Authentication responses must never be cached — a cached 200 could be
+ * replayed to an anonymous visitor by a proxy or a CDN.
+ */
+function noStore(res) {
+    res.setHeader('Cache-Control', 'no-store');
+    res.setHeader('Pragma', 'no-cache');
+}
+/**
  * Public registration is DISABLED.
  *
  * Accounts are created exclusively by an Admin through the protected
@@ -28,6 +36,7 @@ const signUp = async (_req, res) => {
 };
 exports.signUp = signUp;
 const login = async (req, res) => {
+    noStore(res);
     try {
         const { email, password } = req.body;
         if (typeof email !== 'string' || typeof password !== 'string') {
@@ -88,6 +97,7 @@ exports.login = login;
  * database so the client always sees the CURRENT role and account status.
  */
 const getMe = async (req, res) => {
+    noStore(res);
     const user = await User_1.User.findById(req.user.id).select('email role isActive createdAt');
     if (!user) {
         res.status(401).json({ success: false, message: 'User no longer exists.' });
@@ -106,6 +116,7 @@ const getMe = async (req, res) => {
 };
 exports.getMe = getMe;
 const logout = async (_req, res) => {
+    noStore(res);
     res.clearCookie('token', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

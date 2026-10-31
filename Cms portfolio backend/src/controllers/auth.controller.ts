@@ -12,6 +12,15 @@ const cookieOptions = {
 }
 
 /**
+ * Authentication responses must never be cached — a cached 200 could be
+ * replayed to an anonymous visitor by a proxy or a CDN.
+ */
+function noStore(res: Response): void {
+  res.setHeader('Cache-Control', 'no-store')
+  res.setHeader('Pragma', 'no-cache')
+}
+
+/**
  * Public registration is DISABLED.
  *
  * Accounts are created exclusively by an Admin through the protected
@@ -27,6 +36,7 @@ export const signUp = async (_req: Request, res: Response): Promise<void> => {
 }
 
 export const login = async (req: Request, res: Response): Promise<void> => {
+  noStore(res)
   try {
     const { email, password } = req.body
 
@@ -98,6 +108,8 @@ export const getMe = async (
   req: AuthenticatedRequest,
   res: Response
 ): Promise<void> => {
+  noStore(res)
+
   const user = await User.findById(req.user!.id).select(
     'email role isActive createdAt'
   )
@@ -120,6 +132,7 @@ export const getMe = async (
 }
 
 export const logout = async (_req: Request, res: Response): Promise<void> => {
+  noStore(res)
   res.clearCookie('token', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',

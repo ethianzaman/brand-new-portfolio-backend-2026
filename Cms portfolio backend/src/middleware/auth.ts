@@ -33,6 +33,15 @@ export const CMS_PERMISSIONS: Record<string, readonly UserRole[]> = {
 export type CmsPermission = keyof typeof CMS_PERMISSIONS
 
 /**
+ * Authentication responses must never be cached by a proxy, a browser or a
+ * CDN — a cached 401/403 could otherwise be replayed to a different visitor.
+ */
+function noStore(res: Response): void {
+  res.setHeader('Cache-Control', 'no-store')
+  res.setHeader('Pragma', 'no-cache')
+}
+
+/**
  * Authentication only — verifies the JWT cookie, loads the user's CURRENT
  * role and account status from the database, and rejects missing, invalid,
  * expired, deleted or disabled accounts.
@@ -48,6 +57,7 @@ export const protect = async (
   const token = req.cookies?.token
 
   if (!token) {
+    noStore(res)
     res.status(401).json({
       success: false,
       message: 'Access denied. No token provided.',
@@ -59,6 +69,7 @@ export const protect = async (
   try {
     decoded = jwt.verify(token, JWT_SECRET) as { id?: unknown }
   } catch {
+    noStore(res)
     res.status(401).json({
       success: false,
       message: 'Invalid or expired token.',
@@ -67,6 +78,7 @@ export const protect = async (
   }
 
   if (typeof decoded.id !== 'string') {
+    noStore(res)
     res.status(401).json({
       success: false,
       message: 'Invalid token payload.',
@@ -77,6 +89,7 @@ export const protect = async (
   const user = await User.findById(decoded.id).select('email role isActive')
 
   if (!user) {
+    noStore(res)
     res.status(401).json({
       success: false,
       message: 'User no longer exists.',
@@ -85,6 +98,7 @@ export const protect = async (
   }
 
   if (user.isActive === false) {
+    noStore(res)
     res.status(403).json({
       success: false,
       message: 'This account has been disabled. Contact the administrator.',
@@ -94,6 +108,7 @@ export const protect = async (
 
   // A user with a missing/legacy/invalid role gets no access at all.
   if (!USER_ROLES.includes(user.role)) {
+    noStore(res)
     res.status(403).json({
       success: false,
       message: 'Your account does not have a valid role assigned.',
