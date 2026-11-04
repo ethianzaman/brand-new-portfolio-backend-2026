@@ -19,11 +19,59 @@ export interface ISiteBrandLogo {
   url: string;
 }
 
+export type SocialIconType = "icon" | "image";
+
 export interface ISiteSocial {
+  /** Stable id that sections refer to, so a link can change without breaking them. */
+  id: string;
   label: string;
   href: string;
   /** Icon key rendered by the frontend `SocialIcon` map. */
   icon: string;
+  iconType: SocialIconType;
+  /** Cloudinary URL of the uploaded logo, used when `iconType` is "image". */
+  imageUrl: string;
+  /** Optional one-liner, shown where a section has room for it (Contact). */
+  description: string;
+}
+
+/** Every place on the public site that can show social links. */
+export const SOCIAL_PLACEMENT_KEYS = [
+  "navbar",
+  "mobileMenu",
+  "footer",
+  "homeHero",
+  "about",
+  "services",
+  "projects",
+  "blog",
+  "skills",
+  "contact",
+] as const;
+
+export type SocialPlacementKey = (typeof SOCIAL_PLACEMENT_KEYS)[number];
+
+/** Ordered link ids per section. The number of ids is how many that section shows. */
+export type SocialPlacements = Record<SocialPlacementKey, string[]>;
+
+/**
+ * Global SEO defaults. Distinct from the per-item `ISeo`: the global record
+ * also owns the title template and the canonical site origin, which only make
+ * sense once for the whole site.
+ */
+export interface ISiteSeo {
+  defaultMetaTitle: string;
+  defaultTitleTemplate: string;
+  defaultMetaDescription: string;
+  defaultOgImage: string;
+  /** Twitter/X handle, e.g. "@ethian" — used for twitter:site. */
+  twitterHandle: string;
+  /**
+   * Optional canonical origin override for this site, e.g.
+   * "https://ethian.dev". When empty the public site falls back to the
+   * validated SITE_URL environment variable.
+   */
+  siteUrl: string;
 }
 
 export interface ISiteSettings extends Document {
@@ -32,11 +80,20 @@ export interface ISiteSettings extends Document {
     tagline: string;
     logo: ISiteBrandLogo;
   };
-  /**
-   * Shared social links shown by BOTH the Navbar and the Footer. Owned here so
-   * they are never duplicated per-section. The whole array is replaced on save.
-   */
+  /** The social link library. Sections pick from it through `socialPlacements`. */
   socials: ISiteSocial[];
+  socialPlacements?: SocialPlacements;
+  /**
+   * False until the old per-section lists have been merged into the library.
+   * Until then the public site keeps showing the old lists.
+   */
+  socialsConfigured: boolean;
+
+  /**
+   * Global SEO defaults, managed from the dashboard. Optional/additive so the
+   * existing settings document keeps working untouched.
+   */
+  seo?: ISiteSeo;
 }
 
 const SiteBrandLogoSchema = new Schema<ISiteBrandLogo>(
@@ -65,6 +122,11 @@ const SiteBrandLogoSchema = new Schema<ISiteBrandLogo>(
 
 const SiteSocialSchema = new Schema<ISiteSocial>(
   {
+    id: {
+      type: String,
+      default: "",
+      trim: true,
+    },
     label: {
       type: String,
       default: "",
@@ -80,6 +142,57 @@ const SiteSocialSchema = new Schema<ISiteSocial>(
       default: "link",
       trim: true,
     },
+    iconType: {
+      type: String,
+      enum: ["icon", "image"],
+      default: "icon",
+    },
+    imageUrl: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+    description: {
+      type: String,
+      default: "",
+      trim: true,
+      maxlength: 120,
+    },
+  },
+  {
+    _id: false,
+    id: false,
+  },
+);
+
+const SocialPlacementsSchema = new Schema<SocialPlacements>(
+  Object.fromEntries(
+    SOCIAL_PLACEMENT_KEYS.map((key) => [key, { type: [String], default: [] }]),
+  ),
+  {
+    _id: false,
+    id: false,
+  },
+);
+
+const SiteSeoSchema = new Schema<ISiteSeo>(
+  {
+    defaultMetaTitle: { type: String, default: "", trim: true, maxlength: 70 },
+    defaultTitleTemplate: {
+      type: String,
+      default: "%s",
+      trim: true,
+      maxlength: 120,
+    },
+    defaultMetaDescription: {
+      type: String,
+      default: "",
+      trim: true,
+      maxlength: 160,
+    },
+    defaultOgImage: { type: String, default: "", trim: true, maxlength: 500 },
+    twitterHandle: { type: String, default: "", trim: true, maxlength: 100 },
+    siteUrl: { type: String, default: "", trim: true, maxlength: 300 },
   },
   {
     _id: false,
@@ -108,6 +221,19 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
     socials: {
       type: [SiteSocialSchema],
       default: [],
+    },
+    socialPlacements: {
+      type: SocialPlacementsSchema,
+      default: undefined,
+    },
+    socialsConfigured: {
+      type: Boolean,
+      default: false,
+    },
+
+    seo: {
+      type: SiteSeoSchema,
+      default: undefined,
     },
   },
   {

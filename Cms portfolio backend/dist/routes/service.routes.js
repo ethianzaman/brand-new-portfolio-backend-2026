@@ -6,6 +6,7 @@ const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
 router.get("", service_controller_1.getServices);
 router.get("/stats", service_controller_1.getServiceStats);
+router.get("/slug/:slug", service_controller_1.getServiceBySlug);
 router.post("/create", auth_1.protect, (0, auth_1.requirePermission)("create"), service_controller_1.createService);
 router.put("/:id", auth_1.protect, (0, auth_1.requirePermission)("update"), service_controller_1.updateService);
 router.delete("/:id", auth_1.protect, (0, auth_1.requirePermission)("delete"), service_controller_1.deleteService);

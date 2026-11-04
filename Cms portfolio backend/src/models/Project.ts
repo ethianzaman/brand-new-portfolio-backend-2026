@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { SeoSchema, type ISeo } from "./shared/seoSchema";
 
 function transformDocument(_: unknown, ret: Record<string, any>) {
   ret.id = ret._id.toString();
@@ -29,6 +30,16 @@ export interface IProject extends Document {
   featured: boolean;
 
   isPlaceholder: boolean;
+
+  /**
+   * Optional public URL segment. Legacy projects have no slug; the public
+   * detail route resolves them by id as a fallback (see getProjectBySlug).
+   * `sparse: true` keeps the unique index from rejecting documents that
+   * predate slugs.
+   */
+  slug?: string;
+
+  seo?: ISeo;
 }
 
 const ProjectSchema = new Schema<IProject>(
@@ -86,6 +97,20 @@ const ProjectSchema = new Schema<IProject>(
     isPlaceholder: {
       type: Boolean,
       default: false,
+    },
+
+    // Optional, additive. Legacy projects keep working without a slug/seo.
+    slug: {
+      type: String,
+      default: undefined,
+      trim: true,
+      lowercase: true,
+      index: { unique: true, sparse: true },
+    },
+
+    seo: {
+      type: SeoSchema,
+      default: undefined,
     },
   },
   {

@@ -35,6 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Blog = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
+const seoSchema_1 = require("./shared/seoSchema");
 function transformDocument(_, ret) {
     ret.id = ret._id.toString();
     delete ret._id;
@@ -93,6 +94,11 @@ const BlogSchema = new mongoose_1.Schema({
     featured: {
         type: Boolean,
         default: false,
+    },
+    // Optional, additive SEO overrides. Absent on legacy documents.
+    seo: {
+        type: seoSchema_1.SeoSchema,
+        default: undefined,
     },
 }, {
     timestamps: true,

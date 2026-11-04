@@ -9,6 +9,24 @@ import {
   MAX_QUERY_TIME_MS,
 } from "../utils/query";
 import { serializeDocs } from "../utils/serialize";
+import { normaliseSeo, serializeSeo } from "../utils/seo";
+import { uniqueSlug } from "../utils/slug";
+
+/** Attach a normalised `seo` object to a document (hydrated or lean). */
+function withSeo(doc: unknown): Record<string, unknown> {
+  if (doc === null || doc === undefined) {
+    return { seo: serializeSeo(undefined) };
+  }
+  const plain =
+    typeof (doc as any).toObject === "function"
+      ? (doc as any).toObject()
+      : (doc as Record<string, unknown>);
+  return { ...plain, seo: serializeSeo((plain as any).seo) };
+}
+
+function withSeoList(docs: unknown[]) {
+  return docs.map((doc) => withSeo(doc));
+}
 
 /**
  * `GET /api/services` — public list + dashboard list.
@@ -53,7 +71,7 @@ export async function getServices(req: Request, res: Response): Promise<void> {
     res.status(200).json({
       success: true,
       count: total,
-      services: serializeDocs(services),
+      services: withSeoList(serializeDocs(services)),
       ...buildPageMeta(services, total, pageNum, size),
     });
   } catch (error) {
@@ -107,16 +125,32 @@ export async function createService(
   res: Response,
 ): Promise<void> {
   try {
-    const service = await Service.create(req.body);
+    // Slug: explicit value wins, otherwise derive from the title.
+    const slug = await uniqueSlug(
+      Service,
+      req.body.slug?.trim() || req.body.title,
+    );
+
+    const seo = normaliseSeo(req.body.seo);
+    if (seo === null) {
+      res.status(400).json({
+        success: false,
+        message:
+          "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+      });
+      return;
+    }
+
+    const service = await Service.create({ ...req.body, slug, seo });
     await publishChange("services");
+    await publishChange("seo");
     res.status(201).json({
       success: true,
       message: "Service created successfully",
-      service,
+      service: withSeo(service),
     });
   } catch (error) {
     console.error("[CREATE SERVICE ERROR]", error);
-    await publishChange("services");
     res.status(500).json({
       success: false,
       message: "Failed to create service",
@@ -129,28 +163,71 @@ export async function updateService(
   res: Response,
 ): Promise<void> {
   try {
-    const service = await Service.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!service) {
+    const existing = await Service.findById(req.params.id);
+    if (!existing) {
       res.status(404).json({
         success: false,
         message: "Service not found",
       });
       return;
     }
+
+    const updateData: Record<string, unknown> = { ...req.body };
+
+    // Slug policy: honour an explicit new slug; preserve the existing one on an
+    // ordinary edit; generate one for a legacy record with no slug.
+    if (req.body.slug !== undefined && String(req.body.slug).trim()) {
+      updateData.slug = await uniqueSlug(Service, req.body.slug, existing._id);
+    } else if (!existing.slug && req.body.title) {
+      updateData.slug = await uniqueSlug(Service, req.body.title, existing._id);
+    }
+
+    if (req.body.seo !== undefined) {
+      const seo = normaliseSeo(req.body.seo);
+      if (seo === null) {
+        res.status(400).json({
+          success: false,
+          message:
+            "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+        });
+        return;
+      }
+      updateData.seo = seo;
+    }
+
+    const service = await Service.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+      runValidators: true,
+    });
+
     await publishChange("services");
+    await publishChange("seo");
     res.status(200).json({
       success: true,
-      service,
+      service: withSeo(service),
     });
   } catch (err: any) {
     res.status(500).json({
       success: false,
       message: err.message,
     });
+  }
+}
+
+// GET /api/services/slug/:slug — public single service by slug.
+export async function getServiceBySlug(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const service = await Service.findOne({ slug: req.params.slug });
+    if (!service) {
+      res.status(404).json({ success: false, message: "Service not found" });
+      return;
+    }
+    res.status(200).json({ success: true, service: withSeo(service) });
+  } catch {
+    res.status(500).json({ success: false, message: "Server error" });
   }
 }
 
@@ -172,6 +249,7 @@ export async function deleteService(
     }
 
     await publishChange("services");
+    await publishChange("seo");
     res.status(200).json({
       success: true,
       message: "Service deleted successfully",

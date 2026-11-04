@@ -75,6 +75,27 @@ const SiteSocialSchema = new mongoose_1.Schema({
     _id: false,
     id: false,
 });
+const SiteSeoSchema = new mongoose_1.Schema({
+    defaultMetaTitle: { type: String, default: "", trim: true, maxlength: 70 },
+    defaultTitleTemplate: {
+        type: String,
+        default: "%s",
+        trim: true,
+        maxlength: 120,
+    },
+    defaultMetaDescription: {
+        type: String,
+        default: "",
+        trim: true,
+        maxlength: 160,
+    },
+    defaultOgImage: { type: String, default: "", trim: true, maxlength: 500 },
+    twitterHandle: { type: String, default: "", trim: true, maxlength: 100 },
+    siteUrl: { type: String, default: "", trim: true, maxlength: 300 },
+}, {
+    _id: false,
+    id: false,
+});
 const SiteSettingsSchema = new mongoose_1.Schema({
     brand: {
         name: {
@@ -95,6 +116,10 @@ const SiteSettingsSchema = new mongoose_1.Schema({
     socials: {
         type: [SiteSocialSchema],
         default: [],
+    },
+    seo: {
+        type: SiteSeoSchema,
+        default: undefined,
     },
 }, {
     timestamps: true,

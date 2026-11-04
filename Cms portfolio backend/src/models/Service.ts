@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { SeoSchema, type ISeo } from "./shared/seoSchema";
 
 export interface IService extends Document {
   icon: string;
@@ -8,6 +9,9 @@ export interface IService extends Document {
   tags: string[];
   color: string;
   popular: boolean;
+  /** Optional public URL segment (legacy services fall back to id). */
+  slug?: string;
+  seo?: ISeo;
 }
 
 const ServiceSchema = new Schema<IService>(
@@ -19,6 +23,17 @@ const ServiceSchema = new Schema<IService>(
     tags: [{ type: String }],
     color: { type: String, default: "#6366f1" },
     popular: { type: Boolean, default: false },
+    slug: {
+      type: String,
+      default: undefined,
+      trim: true,
+      lowercase: true,
+      index: { unique: true, sparse: true },
+    },
+    seo: {
+      type: SeoSchema,
+      default: undefined,
+    },
   },
   {
     timestamps: true,

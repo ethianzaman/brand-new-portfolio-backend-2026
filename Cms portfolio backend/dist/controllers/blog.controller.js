@@ -13,6 +13,7 @@ const uploadMiddleware_1 = require("../middleware/uploadMiddleware");
 const publish_1 = require("../lib/publish");
 const query_1 = require("../utils/query");
 const serialize_1 = require("../utils/serialize");
+const seo_1 = require("../utils/seo");
 /** Fields the dashboard list is allowed to sort by. */
 const BLOG_SORT_FIELDS = ["createdAt", "title", "readTime", "status"];
 function generateSlug(title) {
@@ -27,15 +28,17 @@ function calculateReadTime(content) {
     return Math.max(1, Math.ceil(words / 200));
 }
 // GET /api/blogs — public, with pagination + filter
+//
+// SECURITY: this endpoint only ever exposes `status: "published"`. The old
+// behaviour accepted `?status=all` (and an empty `?status=`) and returned
+// drafts to anonymous callers. Drafts are only reachable through the
+// protected dashboard endpoint `/api/blogs/all`.
 async function getBlogs(req, res) {
     try {
-        const { category, status = "published", page = "1", pageSize = "6", q, } = req.query;
-        const filter = {};
+        const { category, page = "1", pageSize = "6", q } = req.query;
+        const filter = { status: "published" };
         if (category && category !== "all") {
             filter.category = category;
-        }
-        if (status && status !== "all") {
-            filter.status = status;
         }
         const rx = (0, query_1.buildSearchRegex)(q);
         if (rx) {
@@ -59,7 +62,7 @@ async function getBlogs(req, res) {
         ]);
         res.status(200).json({
             success: true,
-            blogs: (0, serialize_1.serializeDocs)(blogs),
+            blogs: withSeoList((0, serialize_1.serializeDocs)(blogs)),
             ...(0, query_1.buildPageMeta)(blogs, total, pageNum, size),
         });
     }
@@ -67,33 +70,57 @@ async function getBlogs(req, res) {
         res.status(500).json({ success: false, message: "Server error" });
     }
 }
-// GET /api/blogs/:id
+// GET /api/blogs/:id — public. Published only: a draft id must not resolve.
+//
+// NOTE: the dashboard reads a single draft through `/api/blogs/all` (the list)
+// or after a write; there is no public single-draft read path, by design.
 async function getBlogById(req, res) {
     try {
-        const blog = await Blog_1.Blog.findById(req.params.id);
+        const blog = await Blog_1.Blog.findOne({ _id: req.params.id, status: "published" });
         if (!blog) {
             res.status(404).json({ success: false, message: "Blog not found" });
             return;
         }
-        res.status(200).json({ success: true, blog });
+        res.status(200).json({ success: true, blog: withSeo(blog) });
     }
     catch {
         res.status(500).json({ success: false, message: "Server error" });
     }
 }
-// GET /api/blogs/slug/:slug
+// GET /api/blogs/slug/:slug — public. Published only (draft slugs 404).
 async function getBlogBySlug(req, res) {
     try {
-        const blog = await Blog_1.Blog.findOne({ slug: req.params.slug });
+        const blog = await Blog_1.Blog.findOne({
+            slug: req.params.slug,
+            status: "published",
+        });
         if (!blog) {
             res.status(404).json({ success: false, message: "Blog not found" });
             return;
         }
-        res.status(200).json({ success: true, blog });
+        res.status(200).json({ success: true, blog: withSeo(blog) });
     }
     catch {
         res.status(500).json({ success: false, message: "Server error" });
     }
+}
+/**
+ * Attach a normalised `seo` object to a single Mongoose document so the
+ * response contract matches the list endpoints and legacy docs never surface
+ * `undefined`. Works with both hydrated docs and `lean()` plain objects.
+ */
+function withSeo(doc) {
+    if (doc === null || doc === undefined) {
+        return { seo: (0, seo_1.serializeSeo)(undefined) };
+    }
+    const plain = typeof doc.toObject === "function"
+        ? doc.toObject()
+        : doc;
+    return { ...plain, seo: (0, seo_1.serializeSeo)(plain.seo) };
+}
+/** `withSeo` mapped over a list of lean docs. */
+function withSeoList(docs) {
+    return docs.map((doc) => withSeo(doc));
 }
 // POST /api/blogs/create — protected
 async function createBlog(req, res) {
@@ -109,11 +136,21 @@ async function createBlog(req, res) {
             slug = `${slug}-${Date.now()}`;
         }
         const content = req.body.content || "";
+        // Validate + whitelist SEO input. `null` means a URL violated policy.
+        const seo = (0, seo_1.normaliseSeo)(req.body.seo);
+        if (seo === null) {
+            res.status(400).json({
+                success: false,
+                message: "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+            });
+            return;
+        }
         const blog = await Blog_1.Blog.create({
             ...req.body,
             slug,
             content,
             coverImage,
+            seo,
             readTime: calculateReadTime(content),
             tags: Array.isArray(req.body.tags)
                 ? req.body.tags
@@ -122,9 +159,10 @@ async function createBlog(req, res) {
                     : [],
         });
         await (0, publish_1.publishChange)("blogs");
+        await (0, publish_1.publishChange)("seo");
         res.status(201).json({
             success: true,
-            blog,
+            blog: withSeo(blog),
         });
     }
     catch (err) {
@@ -165,6 +203,19 @@ async function updateBlog(req, res) {
         if (req.body.status !== undefined) {
             updateData.status = req.body.status === "draft" ? "draft" : "published";
         }
+        // Only touch `seo` when the caller actually sent it, so an unrelated
+        // field update never wipes stored SEO overrides.
+        if (req.body.seo !== undefined) {
+            const seo = (0, seo_1.normaliseSeo)(req.body.seo);
+            if (seo === null) {
+                res.status(400).json({
+                    success: false,
+                    message: "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+                });
+                return;
+            }
+            updateData.seo = seo;
+        }
         const content = req.body.content ?? blog.content;
         updateData.readTime = calculateReadTime(content);
         if (req.file) {
@@ -178,9 +229,10 @@ async function updateBlog(req, res) {
             runValidators: true,
         });
         await (0, publish_1.publishChange)("blogs");
+        await (0, publish_1.publishChange)("seo");
         res.status(200).json({
             success: true,
-            blog: updatedBlog,
+            blog: withSeo(updatedBlog),
         });
     }
     catch (err) {
@@ -258,7 +310,7 @@ async function getAllBlogs(req, res) {
         ]);
         res.status(200).json({
             success: true,
-            blogs: (0, serialize_1.serializeDocs)(blogs),
+            blogs: withSeoList((0, serialize_1.serializeDocs)(blogs)),
             ...(0, query_1.buildPageMeta)(blogs, total, pageNum, size),
         });
     }

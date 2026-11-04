@@ -1,3 +1,4 @@
+import type { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 
@@ -15,6 +16,67 @@ export const upload = multer({
   storage,
   limits: { fileSize: 3 * 1024 * 1024 }, // সর্বোচ্চ ৩ মেগাবাইট ফাইল সাইজ লিমিট
 });
+
+const SOCIAL_LOGO_MAX_BYTES = 1024 * 1024;
+
+const socialLogo = multer({
+  storage,
+  limits: { fileSize: SOCIAL_LOGO_MAX_BYTES, files: 1 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) return cb(null, true);
+    cb(new Error("Logo must be an image file"));
+  },
+}).single("logo");
+
+/** Optional `logo` image, up to 1 MB. Bad files answer 400, not a server error. */
+export function socialLogoUpload(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
+  socialLogo(req, res, (err: unknown) => {
+    if (!err) return next();
+
+    const tooLarge =
+      err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE";
+
+    res.status(400).json({
+      success: false,
+      message: tooLarge
+        ? "Logo must be 1 MB or smaller"
+        : err instanceof Error
+          ? err.message
+          : "Could not read the uploaded file",
+    });
+  });
+}
+
+/**
+ * Uploads as `image`, not `auto`: Cloudinary then rejects anything that is not
+ * really an image, whatever mime type the request claimed.
+ */
+export const uploadImageToCloudinary = (
+  fileBuffer: Buffer,
+  folder: string,
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: "image" },
+      (error, result) => {
+        if (error) {
+          return reject(
+            Object.assign(new Error(error.message), {
+              statusCode: error.http_code,
+            }),
+          );
+        }
+        if (result) return resolve(result.secure_url);
+        reject(new Error("Upload failed"));
+      },
+    );
+    uploadStream.end(fileBuffer);
+  });
+};
 
 // ৩. ক্লাউডিনারিতে বাফার থেকে ইমেজ আপলোড করার হেল্পার ফাংশন
 export const uploadToCloudinary = (

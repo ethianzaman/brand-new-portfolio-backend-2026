@@ -6,7 +6,8 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "backfill:leads": "ts-node src/scripts/backfill-leads.ts",
-    "migrate:roles": "ts-node src/scripts/migrate-roles.ts"
+    "migrate:roles": "ts-node src/scripts/migrate-roles.ts",
+    "migrate:socials": "ts-node src/scripts/migrate-socials.ts"
   },
   "dependencies": {
     "@types/compression": "^1.8.1",

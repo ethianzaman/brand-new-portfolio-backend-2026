@@ -1,4 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { SeoSchema, type ISeo } from "./shared/seoSchema";
 
 function transformDocument(_: unknown, ret: Record<string, any>) {
   ret.id = ret._id.toString();
@@ -22,6 +23,7 @@ export interface IBlog extends Document {
   readTime: number;
   status: "draft" | "published";
   featured: boolean;
+  seo?: ISeo;
 }
 
 const BlogSchema = new Schema<IBlog>(
@@ -87,6 +89,12 @@ const BlogSchema = new Schema<IBlog>(
     featured: {
       type: Boolean,
       default: false,
+    },
+
+    // Optional, additive SEO overrides. Absent on legacy documents.
+    seo: {
+      type: SeoSchema,
+      default: undefined,
     },
   },
   {

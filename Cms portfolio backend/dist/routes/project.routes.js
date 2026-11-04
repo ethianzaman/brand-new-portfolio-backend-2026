@@ -12,6 +12,7 @@ router.get("/", project_controller_1.getProjects);
 // (HTTP 500).
 router.get("/all", project_controller_1.getAllProjects);
 router.get("/stats", project_controller_1.getProjectStats);
+router.get("/slug/:slug", project_controller_1.getProjectBySlug);
 router.get("/:id", project_controller_1.getProjectById);
 // Protected — dashboard only
 // Create/update: Admin, Manager, Editor.  Delete: Admin, Manager.

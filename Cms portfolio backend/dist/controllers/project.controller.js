@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProjects = getProjects;
 exports.getProjectById = getProjectById;
+exports.getProjectBySlug = getProjectBySlug;
 exports.createProject = createProject;
 exports.updateProject = updateProject;
 exports.deleteProject = deleteProject;
@@ -12,6 +13,8 @@ const uploadMiddleware_1 = require("../middleware/uploadMiddleware");
 const publish_1 = require("../lib/publish");
 const query_1 = require("../utils/query");
 const serialize_1 = require("../utils/serialize");
+const seo_1 = require("../utils/seo");
+const slug_1 = require("../utils/slug");
 /** Fields the dashboard list is allowed to sort by. */
 const PROJECT_SORT_FIELDS = [
     "title",
@@ -41,7 +44,7 @@ async function getProjects(req, res) {
         ]);
         res.status(200).json({
             success: true,
-            projects: (0, serialize_1.serializeDocs)(projects),
+            projects: withSeoList((0, serialize_1.serializeDocs)(projects)),
             ...(0, query_1.buildPageMeta)(projects, total, pageNum, size),
         });
     }
@@ -57,11 +60,39 @@ async function getProjectById(req, res) {
             res.status(404).json({ success: false, message: "Project not found" });
             return;
         }
-        res.status(200).json({ success: true, project });
+        res.status(200).json({ success: true, project: withSeo(project) });
     }
     catch {
         res.status(500).json({ success: false, message: "Server error" });
     }
+}
+// GET /api/projects/slug/:slug — public single project by its slug.
+// Legacy projects without a slug are still reachable by id via `:id`.
+async function getProjectBySlug(req, res) {
+    try {
+        const project = await Project_1.Project.findOne({ slug: req.params.slug });
+        if (!project) {
+            res.status(404).json({ success: false, message: "Project not found" });
+            return;
+        }
+        res.status(200).json({ success: true, project: withSeo(project) });
+    }
+    catch {
+        res.status(500).json({ success: false, message: "Server error" });
+    }
+}
+/** Attach a normalised `seo` object to a document (hydrated or lean). */
+function withSeo(doc) {
+    if (doc === null || doc === undefined) {
+        return { seo: (0, seo_1.serializeSeo)(undefined) };
+    }
+    const plain = typeof doc.toObject === "function"
+        ? doc.toObject()
+        : doc;
+    return { ...plain, seo: (0, seo_1.serializeSeo)(plain.seo) };
+}
+function withSeoList(docs) {
+    return docs.map((doc) => withSeo(doc));
 }
 // POST /api/projects — protected
 async function createProject(req, res) {
@@ -71,14 +102,29 @@ async function createProject(req, res) {
         if (req.file) {
             thumbnail = await (0, uploadMiddleware_1.uploadToCloudinary)(req.file.buffer, "portfolio/projects");
         }
+        // Slug: explicit value wins, otherwise derive from the title. Uniqueness is
+        // enforced so duplicate titles never collide on the unique index.
+        const slug = await (0, slug_1.uniqueSlug)(Project_1.Project, req.body.slug?.trim() || req.body.title);
+        // Validate + whitelist SEO input (null → policy violation).
+        const seo = (0, seo_1.normaliseSeo)(req.body.seo);
+        if (seo === null) {
+            res.status(400).json({
+                success: false,
+                message: "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+            });
+            return;
+        }
         const project = await Project_1.Project.create({
             ...req.body,
+            slug,
+            seo,
             thumbnail,
         });
         await (0, publish_1.publishChange)("projects");
+        await (0, publish_1.publishChange)("seo");
         res.status(201).json({
             success: true,
-            project,
+            project: withSeo(project),
         });
     }
     catch (err) {
@@ -112,6 +158,27 @@ async function updateProject(req, res) {
         if (req.body.featured !== undefined) {
             updateData.featured = req.body.featured === "true";
         }
+        // Slug policy: an explicit new slug is honoured (and uniquified); an
+        // ordinary title-only edit PRESERVES the existing slug; a legacy project
+        // with no slug gets one generated from its (new) title.
+        if (req.body.slug !== undefined && String(req.body.slug).trim()) {
+            updateData.slug = await (0, slug_1.uniqueSlug)(Project_1.Project, req.body.slug, project._id);
+        }
+        else if (!project.slug && req.body.title) {
+            updateData.slug = await (0, slug_1.uniqueSlug)(Project_1.Project, req.body.title, project._id);
+        }
+        // Only touch `seo` when actually provided.
+        if (req.body.seo !== undefined) {
+            const seo = (0, seo_1.normaliseSeo)(req.body.seo);
+            if (seo === null) {
+                res.status(400).json({
+                    success: false,
+                    message: "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+                });
+                return;
+            }
+            updateData.seo = seo;
+        }
         // নতুন image upload হলে
         if (req.file) {
             // পুরানো cloudinary image delete
@@ -125,9 +192,10 @@ async function updateProject(req, res) {
             runValidators: true,
         });
         await (0, publish_1.publishChange)("projects");
+        await (0, publish_1.publishChange)("seo");
         res.status(200).json({
             success: true,
-            project: updatedProject,
+            project: withSeo(updatedProject),
         });
     }
     catch (err) {
@@ -154,6 +222,7 @@ async function deleteProject(req, res) {
         // Delete project from MongoDB
         await project.deleteOne();
         await (0, publish_1.publishChange)("projects");
+        await (0, publish_1.publishChange)("seo");
         res.status(200).json({
             success: true,
             message: "Project deleted successfully",
@@ -202,7 +271,7 @@ async function getAllProjects(req, res) {
         ]);
         res.status(200).json({
             success: true,
-            projects: (0, serialize_1.serializeDocs)(projects),
+            projects: withSeoList((0, serialize_1.serializeDocs)(projects)),
             ...(0, query_1.buildPageMeta)(projects, total, pageNum, size),
         });
     }

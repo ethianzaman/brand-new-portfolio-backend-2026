@@ -15,6 +15,8 @@ import {
   resolveSort,
 } from "../utils/query";
 import { serializeDocs } from "../utils/serialize";
+import { normaliseSeo, serializeSeo } from "../utils/seo";
+import { uniqueSlug } from "../utils/slug";
 
 /** Fields the dashboard list is allowed to sort by. */
 const PROJECT_SORT_FIELDS = [
@@ -50,7 +52,7 @@ export async function getProjects(req: Request, res: Response): Promise<void> {
 
     res.status(200).json({
       success: true,
-      projects: serializeDocs(projects),
+      projects: withSeoList(serializeDocs(projects)),
       ...buildPageMeta(projects, total, pageNum, size),
     });
   } catch {
@@ -68,10 +70,44 @@ export async function getProjectById(
       res.status(404).json({ success: false, message: "Project not found" });
       return;
     }
-    res.status(200).json({ success: true, project });
+    res.status(200).json({ success: true, project: withSeo(project) });
   } catch {
     res.status(500).json({ success: false, message: "Server error" });
   }
+}
+
+// GET /api/projects/slug/:slug — public single project by its slug.
+// Legacy projects without a slug are still reachable by id via `:id`.
+export async function getProjectBySlug(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  try {
+    const project = await Project.findOne({ slug: req.params.slug });
+    if (!project) {
+      res.status(404).json({ success: false, message: "Project not found" });
+      return;
+    }
+    res.status(200).json({ success: true, project: withSeo(project) });
+  } catch {
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+/** Attach a normalised `seo` object to a document (hydrated or lean). */
+function withSeo(doc: unknown): Record<string, unknown> {
+  if (doc === null || doc === undefined) {
+    return { seo: serializeSeo(undefined) };
+  }
+  const plain =
+    typeof (doc as any).toObject === "function"
+      ? (doc as any).toObject()
+      : (doc as Record<string, unknown>);
+  return { ...plain, seo: serializeSeo((plain as any).seo) };
+}
+
+function withSeoList(docs: unknown[]) {
+  return docs.map((doc) => withSeo(doc));
 }
 
 // POST /api/projects — protected
@@ -90,16 +126,37 @@ export async function createProject(
       );
     }
 
+    // Slug: explicit value wins, otherwise derive from the title. Uniqueness is
+    // enforced so duplicate titles never collide on the unique index.
+    const slug = await uniqueSlug(
+      Project,
+      req.body.slug?.trim() || req.body.title,
+    );
+
+    // Validate + whitelist SEO input (null → policy violation).
+    const seo = normaliseSeo(req.body.seo);
+    if (seo === null) {
+      res.status(400).json({
+        success: false,
+        message:
+          "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+      });
+      return;
+    }
+
     const project = await Project.create({
       ...req.body,
+      slug,
+      seo,
       thumbnail,
     });
 
     await publishChange("projects");
+    await publishChange("seo");
 
     res.status(201).json({
       success: true,
-      project,
+      project: withSeo(project),
     });
   } catch (err: any) {
     res.status(400).json({
@@ -141,6 +198,33 @@ export async function updateProject(
       updateData.featured = req.body.featured === "true";
     }
 
+    // Slug policy: an explicit new slug is honoured (and uniquified); an
+    // ordinary title-only edit PRESERVES the existing slug; a legacy project
+    // with no slug gets one generated from its (new) title.
+    if (req.body.slug !== undefined && String(req.body.slug).trim()) {
+      updateData.slug = await uniqueSlug(
+        Project,
+        req.body.slug,
+        project._id,
+      );
+    } else if (!project.slug && req.body.title) {
+      updateData.slug = await uniqueSlug(Project, req.body.title, project._id);
+    }
+
+    // Only touch `seo` when actually provided.
+    if (req.body.seo !== undefined) {
+      const seo = normaliseSeo(req.body.seo);
+      if (seo === null) {
+        res.status(400).json({
+          success: false,
+          message:
+            "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+        });
+        return;
+      }
+      updateData.seo = seo;
+    }
+
     // নতুন image upload হলে
     if (req.file) {
       // পুরানো cloudinary image delete
@@ -164,10 +248,11 @@ export async function updateProject(
     );
 
     await publishChange("projects");
+    await publishChange("seo");
 
     res.status(200).json({
       success: true,
-      project: updatedProject,
+      project: withSeo(updatedProject),
     });
   } catch (err: any) {
     res.status(400).json({
@@ -201,6 +286,7 @@ export async function deleteProject(
     // Delete project from MongoDB
     await project.deleteOne();
     await publishChange("projects");
+    await publishChange("seo");
     res.status(200).json({
       success: true,
       message: "Project deleted successfully",
@@ -258,7 +344,7 @@ export async function getAllProjects(
 
     res.status(200).json({
       success: true,
-      projects: serializeDocs(projects),
+      projects: withSeoList(serializeDocs(projects)),
       ...buildPageMeta(projects, total, pageNum, size),
     });
   } catch {

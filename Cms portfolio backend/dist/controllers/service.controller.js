@@ -4,11 +4,27 @@ exports.getServices = getServices;
 exports.getServiceStats = getServiceStats;
 exports.createService = createService;
 exports.updateService = updateService;
+exports.getServiceBySlug = getServiceBySlug;
 exports.deleteService = deleteService;
 const Service_1 = require("../models/Service");
 const publish_1 = require("../lib/publish");
 const query_1 = require("../utils/query");
 const serialize_1 = require("../utils/serialize");
+const seo_1 = require("../utils/seo");
+const slug_1 = require("../utils/slug");
+/** Attach a normalised `seo` object to a document (hydrated or lean). */
+function withSeo(doc) {
+    if (doc === null || doc === undefined) {
+        return { seo: (0, seo_1.serializeSeo)(undefined) };
+    }
+    const plain = typeof doc.toObject === "function"
+        ? doc.toObject()
+        : doc;
+    return { ...plain, seo: (0, seo_1.serializeSeo)(plain.seo) };
+}
+function withSeoList(docs) {
+    return docs.map((doc) => withSeo(doc));
+}
 /**
  * `GET /api/services` — public list + dashboard list.
  *
@@ -47,7 +63,7 @@ async function getServices(req, res) {
         res.status(200).json({
             success: true,
             count: total,
-            services: (0, serialize_1.serializeDocs)(services),
+            services: withSeoList((0, serialize_1.serializeDocs)(services)),
             ...(0, query_1.buildPageMeta)(services, total, pageNum, size),
         });
     }
@@ -94,17 +110,27 @@ async function getServiceStats(_req, res) {
 }
 async function createService(req, res) {
     try {
-        const service = await Service_1.Service.create(req.body);
+        // Slug: explicit value wins, otherwise derive from the title.
+        const slug = await (0, slug_1.uniqueSlug)(Service_1.Service, req.body.slug?.trim() || req.body.title);
+        const seo = (0, seo_1.normaliseSeo)(req.body.seo);
+        if (seo === null) {
+            res.status(400).json({
+                success: false,
+                message: "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+            });
+            return;
+        }
+        const service = await Service_1.Service.create({ ...req.body, slug, seo });
         await (0, publish_1.publishChange)("services");
+        await (0, publish_1.publishChange)("seo");
         res.status(201).json({
             success: true,
             message: "Service created successfully",
-            service,
+            service: withSeo(service),
         });
     }
     catch (error) {
         console.error("[CREATE SERVICE ERROR]", error);
-        await (0, publish_1.publishChange)("services");
         res.status(500).json({
             success: false,
             message: "Failed to create service",
@@ -113,21 +139,43 @@ async function createService(req, res) {
 }
 async function updateService(req, res) {
     try {
-        const service = await Service_1.Service.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true,
-        });
-        if (!service) {
+        const existing = await Service_1.Service.findById(req.params.id);
+        if (!existing) {
             res.status(404).json({
                 success: false,
                 message: "Service not found",
             });
             return;
         }
+        const updateData = { ...req.body };
+        // Slug policy: honour an explicit new slug; preserve the existing one on an
+        // ordinary edit; generate one for a legacy record with no slug.
+        if (req.body.slug !== undefined && String(req.body.slug).trim()) {
+            updateData.slug = await (0, slug_1.uniqueSlug)(Service_1.Service, req.body.slug, existing._id);
+        }
+        else if (!existing.slug && req.body.title) {
+            updateData.slug = await (0, slug_1.uniqueSlug)(Service_1.Service, req.body.title, existing._id);
+        }
+        if (req.body.seo !== undefined) {
+            const seo = (0, seo_1.normaliseSeo)(req.body.seo);
+            if (seo === null) {
+                res.status(400).json({
+                    success: false,
+                    message: "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+                });
+                return;
+            }
+            updateData.seo = seo;
+        }
+        const service = await Service_1.Service.findByIdAndUpdate(req.params.id, updateData, {
+            new: true,
+            runValidators: true,
+        });
         await (0, publish_1.publishChange)("services");
+        await (0, publish_1.publishChange)("seo");
         res.status(200).json({
             success: true,
-            service,
+            service: withSeo(service),
         });
     }
     catch (err) {
@@ -135,6 +183,20 @@ async function updateService(req, res) {
             success: false,
             message: err.message,
         });
+    }
+}
+// GET /api/services/slug/:slug — public single service by slug.
+async function getServiceBySlug(req, res) {
+    try {
+        const service = await Service_1.Service.findOne({ slug: req.params.slug });
+        if (!service) {
+            res.status(404).json({ success: false, message: "Service not found" });
+            return;
+        }
+        res.status(200).json({ success: true, service: withSeo(service) });
+    }
+    catch {
+        res.status(500).json({ success: false, message: "Server error" });
     }
 }
 async function deleteService(req, res) {
@@ -148,6 +210,7 @@ async function deleteService(req, res) {
             return;
         }
         await (0, publish_1.publishChange)("services");
+        await (0, publish_1.publishChange)("seo");
         res.status(200).json({
             success: true,
             message: "Service deleted successfully",

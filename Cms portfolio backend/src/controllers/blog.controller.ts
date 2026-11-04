@@ -15,6 +15,7 @@ import {
   resolveSort,
 } from "../utils/query";
 import { serializeDocs } from "../utils/serialize";
+import { normaliseSeo, serializeSeo } from "../utils/seo";
 
 /** Fields the dashboard list is allowed to sort by. */
 const BLOG_SORT_FIELDS = ["createdAt", "title", "readTime", "status"] as const;
@@ -33,22 +34,18 @@ function calculateReadTime(content: string): number {
 }
 
 // GET /api/blogs — public, with pagination + filter
+//
+// SECURITY: this endpoint only ever exposes `status: "published"`. The old
+// behaviour accepted `?status=all` (and an empty `?status=`) and returned
+// drafts to anonymous callers. Drafts are only reachable through the
+// protected dashboard endpoint `/api/blogs/all`.
 export async function getBlogs(req: Request, res: Response): Promise<void> {
   try {
-    const {
-      category,
-      status = "published",
-      page = "1",
-      pageSize = "6",
-      q,
-    } = req.query;
+    const { category, page = "1", pageSize = "6", q } = req.query;
 
-    const filter: Record<string, unknown> = {};
+    const filter: Record<string, unknown> = { status: "published" };
     if (category && category !== "all") {
       filter.category = category;
-    }
-    if (status && status !== "all") {
-      filter.status = status;
     }
 
     const rx = buildSearchRegex(q);
@@ -76,7 +73,7 @@ export async function getBlogs(req: Request, res: Response): Promise<void> {
 
     res.status(200).json({
       success: true,
-      blogs: serializeDocs(blogs),
+      blogs: withSeoList(serializeDocs(blogs)),
       ...buildPageMeta(blogs, total, pageNum, size),
     });
   } catch {
@@ -84,32 +81,59 @@ export async function getBlogs(req: Request, res: Response): Promise<void> {
   }
 }
 
-// GET /api/blogs/:id
+// GET /api/blogs/:id — public. Published only: a draft id must not resolve.
+//
+// NOTE: the dashboard reads a single draft through `/api/blogs/all` (the list)
+// or after a write; there is no public single-draft read path, by design.
 export async function getBlogById(req: Request, res: Response): Promise<void> {
   try {
-    const blog = await Blog.findById(req.params.id);
+    const blog = await Blog.findOne({ _id: req.params.id, status: "published" });
     if (!blog) {
       res.status(404).json({ success: false, message: "Blog not found" });
       return;
     }
-    res.status(200).json({ success: true, blog });
+    res.status(200).json({ success: true, blog: withSeo(blog) });
   } catch {
     res.status(500).json({ success: false, message: "Server error" });
   }
 }
 
-// GET /api/blogs/slug/:slug
+// GET /api/blogs/slug/:slug — public. Published only (draft slugs 404).
 export async function getBlogBySlug(req: Request, res: Response): Promise<void> {
   try {
-    const blog = await Blog.findOne({ slug: req.params.slug });
+    const blog = await Blog.findOne({
+      slug: req.params.slug,
+      status: "published",
+    });
     if (!blog) {
       res.status(404).json({ success: false, message: "Blog not found" });
       return;
     }
-    res.status(200).json({ success: true, blog });
+    res.status(200).json({ success: true, blog: withSeo(blog) });
   } catch {
     res.status(500).json({ success: false, message: "Server error" });
   }
+}
+
+/**
+ * Attach a normalised `seo` object to a single Mongoose document so the
+ * response contract matches the list endpoints and legacy docs never surface
+ * `undefined`. Works with both hydrated docs and `lean()` plain objects.
+ */
+function withSeo(doc: unknown): Record<string, unknown> {
+  if (doc === null || doc === undefined) {
+    return { seo: serializeSeo(undefined) };
+  }
+  const plain =
+    typeof (doc as any).toObject === "function"
+      ? (doc as any).toObject()
+      : (doc as Record<string, unknown>);
+  return { ...plain, seo: serializeSeo((plain as any).seo) };
+}
+
+/** `withSeo` mapped over a list of lean docs. */
+function withSeoList(docs: unknown[]) {
+  return docs.map((doc) => withSeo(doc));
 }
 
 // POST /api/blogs/create — protected
@@ -131,11 +155,23 @@ export async function createBlog(req: Request, res: Response): Promise<void> {
 
     const content = req.body.content || "";
 
+    // Validate + whitelist SEO input. `null` means a URL violated policy.
+    const seo = normaliseSeo(req.body.seo);
+    if (seo === null) {
+      res.status(400).json({
+        success: false,
+        message:
+          "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+      });
+      return;
+    }
+
     const blog = await Blog.create({
       ...req.body,
       slug,
       content,
       coverImage,
+      seo,
       readTime: calculateReadTime(content),
       tags: Array.isArray(req.body.tags)
         ? req.body.tags
@@ -144,9 +180,10 @@ export async function createBlog(req: Request, res: Response): Promise<void> {
           : [],
     });
     await publishChange("blogs");
+    await publishChange("seo");
     res.status(201).json({
       success: true,
-      blog,
+      blog: withSeo(blog),
     });
   } catch (err: any) {
     if (err?.code === 11000) {
@@ -193,6 +230,21 @@ export async function updateBlog(req: Request, res: Response): Promise<void> {
       updateData.status = req.body.status === "draft" ? "draft" : "published";
     }
 
+    // Only touch `seo` when the caller actually sent it, so an unrelated
+    // field update never wipes stored SEO overrides.
+    if (req.body.seo !== undefined) {
+      const seo = normaliseSeo(req.body.seo);
+      if (seo === null) {
+        res.status(400).json({
+          success: false,
+          message:
+            "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+        });
+        return;
+      }
+      updateData.seo = seo;
+    }
+
     const content = req.body.content ?? blog.content;
     updateData.readTime = calculateReadTime(content);
 
@@ -212,9 +264,10 @@ export async function updateBlog(req: Request, res: Response): Promise<void> {
       runValidators: true,
     });
     await publishChange("blogs");
+    await publishChange("seo");
     res.status(200).json({
       success: true,
-      blog: updatedBlog,
+      blog: withSeo(updatedBlog),
     });
   } catch (err: any) {
     res.status(400).json({
@@ -305,7 +358,7 @@ export async function getAllBlogs(
 
     res.status(200).json({
       success: true,
-      blogs: serializeDocs(blogs),
+      blogs: withSeoList(serializeDocs(blogs)),
       ...buildPageMeta(blogs, total, pageNum, size),
     });
   } catch {
