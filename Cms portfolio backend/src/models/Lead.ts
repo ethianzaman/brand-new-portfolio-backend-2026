@@ -38,7 +38,7 @@ const LeadSchema = new Schema<ILead>(
     name: { type: String, default: "", trim: true, maxlength: 160 },
     firstSeenAt: { type: Date, default: Date.now },
     lastSeenAt: { type: Date, default: Date.now },
-    lastMessageAt: { type: Date, default: Date.now, index: true },
+    lastMessageAt: { type: Date, default: Date.now },
     messageCount: { type: Number, default: 0 },
     unreadCount: { type: Number, default: 0 },
     replyCount: { type: Number, default: 0 },

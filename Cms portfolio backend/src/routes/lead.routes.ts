@@ -13,9 +13,9 @@ const router = Router();
 // These routes were previously completely unauthenticated (any anonymous
 // visitor could list/read/delete leads and private message timelines).
 // Reads + mark-read: any authenticated role.  Delete: Admin, Manager only.
-router.get("/", protect, getLeads);
-router.get("/:id", protect, getLead);
-router.post("/:id/read", protect, markLeadRead);
-router.delete("/:id", protect, requirePermission("delete"), deleteLead);
+router.get("/", protect, requirePermission("messages.view"), getLeads);
+router.get("/:id", protect, requirePermission("messages.view"), getLead);
+router.post("/:id/read", protect, requirePermission("messages.edit"), markLeadRead);
+router.delete("/:id", protect, requirePermission("messages.delete"), deleteLead);
 
 export default router;

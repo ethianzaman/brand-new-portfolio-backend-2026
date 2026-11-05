@@ -1,3 +1,4 @@
+import { publicCache } from "../middleware/publicCache";
 import { Router } from "express";
 import {
   getSkills,
@@ -14,20 +15,20 @@ import { upload } from "../middleware/uploadMiddleware";
 const router = Router();
 
 // Public
-router.get("/", getSkills);
+router.get("/", publicCache("skills"), getSkills);
 
 // Category CRUD — create/update: Admin, Manager, Editor.  Delete: Admin, Manager.
-router.post("/categories", protect, requirePermission("create"), createCategory);
+router.post("/categories", protect, requirePermission("skills.create"), createCategory);
 router.put(
   "/categories/:id",
   protect,
-  requirePermission("update"),
+  requirePermission("skills.edit"),
   updateCategory
 );
 router.delete(
   "/categories/:id",
   protect,
-  requirePermission("delete"),
+  requirePermission("skills.delete"),
   deleteCategory
 );
 
@@ -35,21 +36,21 @@ router.delete(
 router.post(
   "/categories/:id/skills",
   protect,
-  requirePermission("create"),
+  requirePermission("skills.create"),
   upload.single("icon"),
   addSkill
 );
 router.put(
   "/categories/:id/skills/:skillName",
   protect,
-  requirePermission("update"),
+  requirePermission("skills.edit"),
   upload.single("icon"),
   updateSkill
 );
 router.delete(
   "/categories/:id/skills/:skillName",
   protect,
-  requirePermission("delete"),
+  requirePermission("skills.delete"),
   deleteSkill
 );
 

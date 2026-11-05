@@ -1,3 +1,4 @@
+import { publicCache } from "../middleware/publicCache";
 import { Router } from "express";
 import {
   getSiteSettings,
@@ -8,25 +9,48 @@ import {
   deleteSocial,
   updateSocialPlacements,
   updateSeo,
+  uploadOgImage,
+  discardOgImage,
   getPageSeo,
   updatePageSeo,
 } from "../controllers/settings.controller";
-import { socialLogoUpload, upload } from "../middleware/uploadMiddleware";
-import { protect, requirePermission } from "../middleware/auth";
+import { ogImageUpload, socialLogoUpload, upload } from "../middleware/uploadMiddleware";
+import { protect, requireAnyPermission, requirePermission } from "../middleware/auth";
 
 const router = Router();
 
+// Everyone who can edit a page, post, project or service.
+const OG_IMAGE_EDITORS = requireAnyPermission([
+  "seo.edit",
+  "blog.create",
+  "blog.edit",
+  "projects.create",
+  "projects.edit",
+  "services.create",
+  "services.edit",
+]);
+
 // Public — Navbar and Footer read the shared brand + socials from here
-router.get("/", getSiteSettings);
+router.get("/", publicCache("settings"), getSiteSettings);
 
 // Public — static-page SEO overrides for the public resolver.
-router.get("/pages/seo", getPageSeo);
+router.get("/pages/seo", publicCache("seo"), getPageSeo);
+
+// Share images, for everyone who can edit a page, post, project or service.
+router.post(
+  "/og-image",
+  protect,
+  OG_IMAGE_EDITORS,
+  ogImageUpload,
+  uploadOgImage,
+);
+router.delete("/og-image", protect, OG_IMAGE_EDITORS, discardOgImage);
 
 // Brand settings are site content (not security-sensitive): Admin, Manager, Editor.
 router.put(
   "/brand",
   protect,
-  requirePermission("update"),
+  requirePermission("settings.edit"),
   upload.single("logo"),
   updateBrand
 );
@@ -35,7 +59,7 @@ router.put(
 router.post(
   "/socials/setup",
   protect,
-  requirePermission("update"),
+  requirePermission("socialLinks.edit"),
   setupSocialLibrary
 );
 
@@ -43,21 +67,21 @@ router.post(
 router.post(
   "/socials",
   protect,
-  requirePermission("create"),
+  requirePermission("socialLinks.create"),
   socialLogoUpload,
   createSocial
 );
 router.put(
   "/socials/:id",
   protect,
-  requirePermission("update"),
+  requirePermission("socialLinks.edit"),
   socialLogoUpload,
   updateSocial
 );
 router.delete(
   "/socials/:id",
   protect,
-  requirePermission("delete"),
+  requirePermission("socialLinks.delete"),
   deleteSocial
 );
 
@@ -65,18 +89,18 @@ router.delete(
 router.put(
   "/social-placements",
   protect,
-  requirePermission("update"),
+  requirePermission("socialLinks.edit"),
   updateSocialPlacements
 );
 
 // Global SEO defaults — Admin, Manager, Editor (site content).
-router.put("/seo", protect, requirePermission("update"), updateSeo);
+router.put("/seo", protect, requirePermission("seo.edit"), updateSeo);
 
 // Static-page SEO overrides — Admin, Manager, Editor.
 router.put(
   "/pages/seo/:page",
   protect,
-  requirePermission("update"),
+  requirePermission("seo.edit"),
   updatePageSeo
 );
 

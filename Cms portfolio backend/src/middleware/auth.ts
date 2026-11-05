@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { JWT_SECRET } from '../config/env'
 import { User, USER_ROLES, UserRole } from '../models/User'
+import { permissionsForRole, type PermissionKey } from '../lib/permissions'
+import { publicMessage } from '../utils/request'
 
 export interface AuthUserPayload {
   id: string
@@ -12,25 +14,6 @@ export interface AuthUserPayload {
 export interface AuthenticatedRequest extends Request {
   user?: AuthUserPayload
 }
-
-/**
- * Explicit role-based permission policy for CMS operations.
- *
- *  read    — Admin, Manager, Editor
- *  create  — Admin, Manager, Editor
- *  update  — Admin, Manager, Editor
- *  delete  — Admin, Manager
- *  users   — Admin only (user management / role assignment)
- */
-export const CMS_PERMISSIONS: Record<string, readonly UserRole[]> = {
-  read: USER_ROLES,
-  create: USER_ROLES,
-  update: USER_ROLES,
-  delete: ['admin', 'manager'],
-  users: ['admin'],
-}
-
-export type CmsPermission = keyof typeof CMS_PERMISSIONS
 
 /**
  * Authentication responses must never be cached by a proxy, a browser or a
@@ -65,9 +48,9 @@ export const protect = async (
     return
   }
 
-  let decoded: { id?: unknown }
+  let decoded: { id?: unknown; v?: unknown }
   try {
-    decoded = jwt.verify(token, JWT_SECRET) as { id?: unknown }
+    decoded = jwt.verify(token, JWT_SECRET) as { id?: unknown; v?: unknown }
   } catch {
     noStore(res)
     res.status(401).json({
@@ -86,13 +69,23 @@ export const protect = async (
     return
   }
 
-  const user = await User.findById(decoded.id).select('email role isActive')
+  const user = await User.findById(decoded.id).select('email role isActive tokenVersion')
 
   if (!user) {
     noStore(res)
     res.status(401).json({
       success: false,
       message: 'User no longer exists.',
+    })
+    return
+  }
+
+  // Tokens issued before the version existed count as version 0.
+  if ((decoded.v ?? 0) !== (user.tokenVersion ?? 0)) {
+    noStore(res)
+    res.status(401).json({
+      success: false,
+      message: 'Invalid or expired token.',
     })
     return
   }
@@ -150,14 +143,44 @@ export function requireRole(...roles: readonly UserRole[]) {
   }
 }
 
-/** Admin-only guard (user management, security-sensitive operations). */
-export const requireAdmin = requireRole('admin')
+/** For what only a Super Admin may do, such as changing what roles can access. */
+export const requireSuperAdmin = requireRole('super_admin')
 
 /**
- * Role-based CMS permission guard, e.g. `requirePermission('delete')`.
- * Must run after `protect`.
+ * Checks the current role's stored permissions, so a change made in the
+ * dashboard applies without anyone signing in again. Must run after `protect`.
  */
-export function requirePermission(permission: CmsPermission) {
-  const allowed = CMS_PERMISSIONS[permission] ?? []
-  return requireRole(...allowed)
+export function requirePermission(permission: PermissionKey) {
+  return requireAnyPermission([permission])
+}
+
+/** Like requirePermission, for an action several sections share. */
+export function requireAnyPermission(permissions: PermissionKey[]) {
+  return async (
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
+    if (!req.user) {
+      res.status(401).json({ success: false, message: 'Not authenticated.' })
+      return
+    }
+
+    try {
+      const granted = await permissionsForRole(req.user.role)
+      if (!permissions.some((permission) => granted.includes(permission))) {
+        res.status(403).json({
+          success: false,
+          message: 'You do not have permission to perform this action.',
+        })
+        return
+      }
+      next()
+    } catch (err: unknown) {
+      res.status(500).json({
+        success: false,
+        message: publicMessage(err, 'Could not verify your permissions.'),
+      })
+    }
+  }
 }

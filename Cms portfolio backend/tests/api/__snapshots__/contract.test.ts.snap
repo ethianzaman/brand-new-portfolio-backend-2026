@@ -1,0 +1,3690 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`API contract > about > default 1`] = `
+{
+  "body": {
+    "about": {
+      "__v": 0,
+      "_id": "<id>",
+      "createdAt": "<generated>",
+      "educations": [],
+      "experiences": [],
+      "hero": {
+        "bio": [
+          "Your bio here.",
+        ],
+        "experience": "1+ Year",
+        "image": null,
+        "location": "Remote",
+        "name": "Your Name",
+        "resumeUrl": "/resume.pdf",
+        "subtitle": "Building great web products",
+        "title": "Full Stack Developer",
+      },
+      "updatedAt": "<generated>",
+      "values": [],
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > about > educations add 1`] = `
+{
+  "body": {
+    "education": {
+      "_id": "<id>",
+      "degree": "BSc",
+      "description": "Studied",
+      "period": "2019",
+      "school": "Uni",
+    },
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > about > educations delete 1`] = `
+{
+  "body": {
+    "message": "Education deleted successfully",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > about > educations edit 1`] = `
+{
+  "body": {
+    "education": {
+      "_id": "<id>",
+      "degree": "MSc",
+      "description": "Studied",
+      "period": "2019",
+      "school": "Uni",
+    },
+    "message": "Education updated successfully",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > about > educations missing fields 1`] = `
+{
+  "body": {
+    "education": {
+      "_id": "<id>",
+      "description": "",
+      "period": "",
+    },
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > about > experiences add 1`] = `
+{
+  "body": {
+    "allExperiences": [
+      {
+        "_id": "<id>",
+        "company": "Co",
+        "current": false,
+        "description": "Built",
+        "period": "2020",
+        "role": "Dev",
+        "tags": [
+          "x",
+        ],
+        "type": "",
+      },
+    ],
+    "experience": {
+      "_id": "<id>",
+      "company": "Co",
+      "current": false,
+      "description": "Built",
+      "period": "2020",
+      "role": "Dev",
+      "tags": [
+        "x",
+      ],
+      "type": "",
+    },
+    "message": "Experience created successfully",
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > about > experiences delete 1`] = `
+{
+  "body": {
+    "message": "Experience deleted successfully",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > about > experiences edit 1`] = `
+{
+  "body": {
+    "experience": {
+      "_id": "<id>",
+      "company": "Co",
+      "current": false,
+      "description": "Built",
+      "period": "2020",
+      "role": "Lead",
+      "tags": [
+        "x",
+      ],
+      "type": "",
+    },
+    "message": "Experience updated successfully",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > about > experiences missing fields 1`] = `
+{
+  "body": {
+    "allExperiences": [
+      {
+        "_id": "<id>",
+        "current": false,
+        "description": "",
+        "period": "",
+        "tags": [],
+        "type": "",
+      },
+      {
+        "_id": "<id>",
+        "company": "Co",
+        "current": false,
+        "description": "Built",
+        "period": "2020",
+        "role": "Dev",
+        "tags": [
+          "x",
+        ],
+        "type": "",
+      },
+    ],
+    "experience": {
+      "_id": "<id>",
+      "current": false,
+      "description": "",
+      "period": "",
+      "tags": [],
+      "type": "",
+    },
+    "message": "Experience created successfully",
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > about > resume must be a pdf 1`] = `
+{
+  "body": {
+    "message": "Resume must be a PDF file",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > about > update with a resume 1`] = `
+{
+  "body": {
+    "hero": {
+      "bio": [
+        "Your bio here.",
+      ],
+      "experience": "1+ Year",
+      "image": null,
+      "location": "Remote",
+      "name": "Test",
+      "resumeUrl": "https://res.cloudinary.com/test-cloud/image/upload/v1/portfolio_resume/file-3.png",
+      "subtitle": "Building great web products",
+      "title": "Engineer",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > about > values add 1`] = `
+{
+  "body": {
+    "message": "Value created successfully",
+    "success": true,
+    "value": {
+      "_id": "<id>",
+      "desc": "Quick",
+      "icon": "Zap",
+      "title": "Fast",
+    },
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > about > values delete 1`] = `
+{
+  "body": {
+    "message": "Value deleted successfully",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > about > values edit 1`] = `
+{
+  "body": {
+    "success": true,
+    "value": {
+      "_id": "<id>",
+      "desc": "Quick",
+      "icon": "Zap",
+      "title": "Faster",
+    },
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > about > values missing fields 1`] = `
+{
+  "body": {
+    "message": "Value created successfully",
+    "success": true,
+    "value": {
+      "_id": "<id>",
+    },
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > about > write needs a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > blogs > by id 1`] = `
+{
+  "body": {
+    "blog": {
+      "author": "Me",
+      "category": "tech",
+      "content": "Long content",
+      "coverImage": "",
+      "createdAt": "<generated>",
+      "excerpt": "Short",
+      "featured": false,
+      "id": "<id>",
+      "readTime": 1,
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "my-post",
+      "status": "published",
+      "tags": [
+        "node",
+      ],
+      "title": "My Post",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > blogs > by slug 1`] = `
+{
+  "body": {
+    "blog": {
+      "author": "Me",
+      "category": "tech",
+      "content": "Long content",
+      "coverImage": "",
+      "createdAt": "<generated>",
+      "excerpt": "Short",
+      "featured": false,
+      "id": "<id>",
+      "readTime": 1,
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "my-post",
+      "status": "published",
+      "tags": [
+        "node",
+      ],
+      "title": "My Post",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > blogs > create 1`] = `
+{
+  "body": {
+    "blog": {
+      "author": "Me",
+      "category": "tech",
+      "content": "Long content",
+      "coverImage": "",
+      "createdAt": "<generated>",
+      "excerpt": "Short",
+      "featured": false,
+      "id": "<id>",
+      "readTime": 1,
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "my-post",
+      "status": "published",
+      "tags": [
+        "node",
+      ],
+      "title": "My Post",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > blogs > create needs a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > blogs > dashboard list 1`] = `
+{
+  "body": {
+    "blogs": [
+      {
+        "author": "Me",
+        "category": "tech",
+        "content": "Long content",
+        "coverImage": "",
+        "createdAt": "<generated>",
+        "excerpt": "Short",
+        "featured": false,
+        "id": "<id>",
+        "readTime": 1,
+        "seo": {
+          "canonicalUrl": "",
+          "metaDescription": "",
+          "metaTitle": "",
+          "nofollow": false,
+          "noindex": false,
+          "ogImage": "",
+        },
+        "slug": "my-post",
+        "status": "published",
+        "tags": [
+          "node",
+        ],
+        "title": "My Post",
+        "updatedAt": "<generated>",
+      },
+    ],
+    "hasMore": false,
+    "page": 1,
+    "pageSize": 10,
+    "success": true,
+    "total": 1,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > blogs > delete 1`] = `
+{
+  "body": {
+    "message": "Blog deleted successfully",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > blogs > delete twice 1`] = `
+{
+  "body": {
+    "message": "Blog not found",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`API contract > blogs > missing fields 1`] = `
+{
+  "body": {
+    "message": "Request failed",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > blogs > missing slug 1`] = `
+{
+  "body": {
+    "message": "Blog not found",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`API contract > blogs > public list 1`] = `
+{
+  "body": {
+    "blogs": [
+      {
+        "author": "Me",
+        "category": "tech",
+        "coverImage": "",
+        "createdAt": "<generated>",
+        "excerpt": "Short",
+        "featured": false,
+        "id": "<id>",
+        "readTime": 1,
+        "seo": {
+          "canonicalUrl": "",
+          "metaDescription": "",
+          "metaTitle": "",
+          "nofollow": false,
+          "noindex": false,
+          "ogImage": "",
+        },
+        "slug": "my-post",
+        "status": "published",
+        "tags": [
+          "node",
+        ],
+        "title": "My Post",
+        "updatedAt": "<generated>",
+      },
+    ],
+    "hasMore": false,
+    "page": 1,
+    "pageSize": 6,
+    "success": true,
+    "total": 1,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > blogs > public list, empty 1`] = `
+{
+  "body": {
+    "blogs": [],
+    "hasMore": false,
+    "page": 1,
+    "pageSize": 6,
+    "success": true,
+    "total": 0,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > blogs > stats 1`] = `
+{
+  "body": {
+    "stats": {
+      "byCategory": {
+        "tech": 1,
+      },
+      "featured": 0,
+      "published": 1,
+      "readTime": 1,
+      "total": 1,
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > blogs > update 1`] = `
+{
+  "body": {
+    "blog": {
+      "author": "Me",
+      "category": "tech",
+      "content": "Long content",
+      "coverImage": "",
+      "createdAt": "<generated>",
+      "excerpt": "Short",
+      "featured": false,
+      "id": "<id>",
+      "readTime": 1,
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "my-post",
+      "status": "published",
+      "tags": [
+        "node",
+      ],
+      "title": "Renamed",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > contact > add a faq 1`] = `
+{
+  "body": {
+    "faq": {
+      "_id": "<id>",
+      "answer": "A",
+      "id": "<id>",
+      "order": 1,
+      "question": "Q?",
+    },
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > contact > bad form options 1`] = `
+{
+  "body": {
+    "message": "Service needed must be a list of text options",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > contact > default 1`] = `
+{
+  "body": {
+    "contact": {
+      "createdAt": "<generated>",
+      "faqs": [],
+      "formOptions": {
+        "budgets": [
+          "Less than $500",
+          "$500 – $1,000",
+          "$1,000 – $3,000",
+          "$3,000 – $5,000",
+          "$5,000+",
+          "Not sure yet",
+        ],
+        "services": [
+          "Frontend Development",
+          "Backend Development",
+          "Full-Stack Web App",
+          "API Integration",
+          "Database Design",
+          "Python / Django",
+          "General Inquiry",
+          "Other",
+        ],
+      },
+      "id": "<id>",
+      "info": {
+        "available": true,
+        "availableText": "Currently accepting work",
+        "email": "you@example.com",
+        "location": "",
+        "phone": "",
+        "responseTime": "Within 24 hours",
+        "socials": {
+          "github": "",
+          "linkedin": "",
+          "twitter": "",
+        },
+      },
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > contact > delete a faq 1`] = `
+{
+  "body": {
+    "id": "<id>",
+    "message": "FAQ deleted successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > contact > delete a missing faq 1`] = `
+{
+  "body": {
+    "message": "FAQ not found.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`API contract > contact > edit a faq 1`] = `
+{
+  "body": {
+    "faq": {
+      "_id": "<id>",
+      "answer": "A2",
+      "id": "<id>",
+      "order": 1,
+      "question": "Q2?",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > contact > faq missing fields 1`] = `
+{
+  "body": {
+    "message": "Question and answer are required.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > contact > update form options 1`] = `
+{
+  "body": {
+    "formOptions": {
+      "budgets": [
+        "$100",
+      ],
+      "services": [
+        "Web",
+      ],
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > contact > update info 1`] = `
+{
+  "body": {
+    "info": {
+      "available": true,
+      "availableText": "Currently accepting work",
+      "email": "a@b.co",
+      "location": "Dhaka",
+      "phone": "1",
+      "responseTime": "Within 24 hours",
+      "socials": {
+        "github": "",
+        "linkedin": "",
+        "twitter": "",
+      },
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > contact > write needs a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > health > ok 1`] = `
+{
+  "body": {
+    "message": "API is running",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > health > the old home path is gone 1`] = `
+{
+  "body": {},
+  "status": 404,
+}
+`;
+
+exports[`API contract > hero > add a stat 1`] = `
+{
+  "body": {
+    "stat": {
+      "_id": "<id>",
+      "label": "Projects",
+      "value": "9+",
+    },
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > hero > after the edits 1`] = `
+{
+  "body": {
+    "hero": {
+      "hero": {
+        "bio": "Bio",
+        "image": "https://res.cloudinary.com/test-cloud/image/upload/v1/portfolio_hero/file-1.png",
+        "name": "Test Name",
+        "resumeUrl": "javascript:alert(1)",
+        "socials": [
+          {
+            "_id": "<id>",
+            "href": "https://github.com/x",
+            "label": "GitHub",
+          },
+        ],
+        "title": "Engineer",
+        "titles": [
+          "One",
+          "Two",
+        ],
+      },
+      "stats": [
+        {
+          "_id": "<id>",
+          "label": "Years",
+          "value": "2+",
+        },
+      ],
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > hero > bad stats 1`] = `
+{
+  "body": {
+    "message": "stats must be an array",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > hero > default 1`] = `
+{
+  "body": {
+    "hero": {
+      "hero": {
+        "bio": "Your bio here.",
+        "image": null,
+        "name": "Your Name",
+        "resumeUrl": "/resume.pdf",
+        "socials": [],
+        "title": "Full Stack Developer",
+        "titles": [],
+      },
+      "stats": [],
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > hero > delete a missing stat 1`] = `
+{
+  "body": {
+    "message": "Stat not found",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`API contract > hero > delete a stat 1`] = `
+{
+  "body": {
+    "message": "Stat deleted successfully",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > hero > edit a stat 1`] = `
+{
+  "body": {
+    "stat": {
+      "_id": "<id>",
+      "label": "Projects",
+      "value": "10+",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > hero > replace stats 1`] = `
+{
+  "body": {
+    "stats": [
+      {
+        "_id": "<id>",
+        "label": "Years",
+        "value": "2+",
+      },
+    ],
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > hero > unsafe resume link 1`] = `
+{
+  "body": {
+    "hero": {
+      "bio": "Bio",
+      "image": "https://res.cloudinary.com/test-cloud/image/upload/v1/portfolio_hero/file-1.png",
+      "name": "Test Name",
+      "resumeUrl": "javascript:alert(1)",
+      "socials": [
+        {
+          "_id": "<id>",
+          "href": "https://github.com/x",
+          "icon": "",
+          "label": "GitHub",
+        },
+      ],
+      "title": "Engineer",
+      "titles": [
+        "One",
+        "Two",
+      ],
+    },
+    "message": "Hero updated successfully",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > hero > update with an empty name 1`] = `
+{
+  "body": {
+    "message": "Name is required",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > hero > update with an image 1`] = `
+{
+  "body": {
+    "hero": {
+      "bio": "Bio",
+      "image": "https://res.cloudinary.com/test-cloud/image/upload/v1/portfolio_hero/file-1.png",
+      "name": "Test Name",
+      "resumeUrl": "/resume.pdf",
+      "socials": [
+        {
+          "_id": "<id>",
+          "href": "https://github.com/x",
+          "icon": "",
+          "label": "GitHub",
+        },
+      ],
+      "title": "Engineer",
+      "titles": [
+        "One",
+        "Two",
+      ],
+    },
+    "message": "Hero updated successfully",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > hero > write needs a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > messages and leads > bad status 1`] = `
+{
+  "body": {
+    "message": "Invalid status value.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > messages and leads > contact form 1`] = `
+{
+  "body": {
+    "message": {
+      "body": "Hello",
+      "budget": "$100",
+      "createdAt": "<generated>",
+      "email": "v@test.invalid",
+      "id": "<id>",
+      "leadId": "<id>",
+      "name": "Visitor",
+      "replied": false,
+      "replies": [],
+      "starred": false,
+      "status": "unread",
+      "subject": "Hi",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > messages and leads > delete a lead 1`] = `
+{
+  "body": {
+    "id": "<id>",
+    "message": "Lead deleted.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > messages and leads > delete a lead twice 1`] = `
+{
+  "body": {
+    "message": "Lead not found.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`API contract > messages and leads > delete a message 1`] = `
+{
+  "body": {
+    "message": "Message not found.",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`API contract > messages and leads > empty reply 1`] = `
+{
+  "body": {
+    "message": "Reply is required.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > messages and leads > inbox 1`] = `
+{
+  "body": {
+    "messages": [
+      {
+        "body": "Hello",
+        "budget": "$100",
+        "createdAt": "<generated>",
+        "email": "v@test.invalid",
+        "id": "<id>",
+        "leadId": "<id>",
+        "name": "Visitor",
+        "replied": false,
+        "replies": [],
+        "starred": false,
+        "status": "unread",
+        "subject": "Hi",
+        "updatedAt": "<generated>",
+      },
+    ],
+    "success": true,
+    "total": 1,
+    "unread": 1,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > messages and leads > inbox needs a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > messages and leads > leads 1`] = `
+{
+  "body": {
+    "leads": [
+      {
+        "createdAt": "<generated>",
+        "email": "v@test.invalid",
+        "firstSeenAt": "<date>",
+        "hasStarred": true,
+        "id": "<id>",
+        "lastMessageAt": "<date>",
+        "lastSeenAt": "<date>",
+        "messageCount": 1,
+        "name": "Visitor",
+        "preview": {
+          "at": "<generated>",
+          "body": "Hello",
+          "starred": true,
+          "status": "read",
+          "subject": "Hi",
+        },
+        "replyCount": 1,
+        "unreadCount": 0,
+        "updatedAt": "<generated>",
+      },
+    ],
+    "success": true,
+    "total": 1,
+    "unread": 0,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > messages and leads > leads need a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > messages and leads > mark lead read 1`] = `
+{
+  "body": {
+    "lead": {
+      "createdAt": "<generated>",
+      "email": "v@test.invalid",
+      "firstSeenAt": "<date>",
+      "id": "<id>",
+      "lastMessageAt": "<date>",
+      "lastSeenAt": "<date>",
+      "messageCount": 1,
+      "name": "Visitor",
+      "replyCount": 1,
+      "unreadCount": 0,
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > messages and leads > missing fields 1`] = `
+{
+  "body": {
+    "message": "Name is required.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > messages and leads > one lead 1`] = `
+{
+  "body": {
+    "lead": {
+      "createdAt": "<generated>",
+      "email": "v@test.invalid",
+      "firstSeenAt": "<date>",
+      "id": "<id>",
+      "lastMessageAt": "<date>",
+      "lastSeenAt": "<date>",
+      "messageCount": 1,
+      "name": "Visitor",
+      "replyCount": 1,
+      "unreadCount": 0,
+      "updatedAt": "<generated>",
+    },
+    "messages": [
+      {
+        "body": "Hello",
+        "budget": "$100",
+        "createdAt": "<generated>",
+        "email": "v@test.invalid",
+        "id": "<id>",
+        "leadId": "<id>",
+        "name": "Visitor",
+        "replied": true,
+        "replies": [
+          {
+            "body": "Thanks",
+            "id": "<id>",
+            "sentAt": "<date>",
+          },
+        ],
+        "starred": true,
+        "status": "read",
+        "subject": "Hi",
+        "updatedAt": "<generated>",
+      },
+    ],
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > messages and leads > read all 1`] = `
+{
+  "body": {
+    "modified": 0,
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > messages and leads > read one 1`] = `
+{
+  "body": {
+    "message": {
+      "body": "Hello",
+      "budget": "$100",
+      "createdAt": "<generated>",
+      "email": "v@test.invalid",
+      "id": "<id>",
+      "leadId": "<id>",
+      "name": "Visitor",
+      "replied": false,
+      "replies": [],
+      "starred": false,
+      "status": "unread",
+      "subject": "Hi",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > messages and leads > reply without mail set up 1`] = `
+{
+  "body": {
+    "delivered": false,
+    "deliveryError": "Email is not configured — set GMAIL_USER + GMAIL_APP_PASSWORD, or RESEND_API_KEY with a verified domain.",
+    "message": {
+      "body": "Hello",
+      "budget": "$100",
+      "createdAt": "<generated>",
+      "email": "v@test.invalid",
+      "id": "<id>",
+      "leadId": "<id>",
+      "name": "Visitor",
+      "replied": true,
+      "replies": [
+        {
+          "body": "Thanks",
+          "id": "<id>",
+          "sentAt": "<date>",
+        },
+      ],
+      "starred": true,
+      "status": "read",
+      "subject": "Hi",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > messages and leads > star 1`] = `
+{
+  "body": {
+    "message": {
+      "body": "Hello",
+      "budget": "$100",
+      "createdAt": "<generated>",
+      "email": "v@test.invalid",
+      "id": "<id>",
+      "leadId": "<id>",
+      "name": "Visitor",
+      "replied": false,
+      "replies": [],
+      "starred": true,
+      "status": "unread",
+      "subject": "Hi",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > messages and leads > unread count 1`] = `
+{
+  "body": {
+    "success": true,
+    "unread": 1,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > projects > bad seo 1`] = `
+{
+  "body": {
+    "message": "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > projects > by id 1`] = `
+{
+  "body": {
+    "project": {
+      "category": "fullstack",
+      "color": "#123456",
+      "createdAt": "<generated>",
+      "description": "A project",
+      "featured": false,
+      "githubUrl": "https://github.com/x/y",
+      "id": "<id>",
+      "isPlaceholder": false,
+      "liveUrl": "https://example.com",
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "my-project",
+      "tags": [
+        "react",
+      ],
+      "thumbnail": "",
+      "title": "My Project",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > projects > by slug 1`] = `
+{
+  "body": {
+    "project": {
+      "category": "fullstack",
+      "color": "#123456",
+      "createdAt": "<generated>",
+      "description": "A project",
+      "featured": false,
+      "githubUrl": "https://github.com/x/y",
+      "id": "<id>",
+      "isPlaceholder": false,
+      "liveUrl": "https://example.com",
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "my-project",
+      "tags": [
+        "react",
+      ],
+      "thumbnail": "",
+      "title": "My Project",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > projects > create 1`] = `
+{
+  "body": {
+    "project": {
+      "category": "fullstack",
+      "color": "#123456",
+      "createdAt": "<generated>",
+      "description": "A project",
+      "featured": false,
+      "githubUrl": "https://github.com/x/y",
+      "id": "<id>",
+      "isPlaceholder": false,
+      "liveUrl": "https://example.com",
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "my-project",
+      "tags": [
+        "react",
+      ],
+      "thumbnail": "",
+      "title": "My Project",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > projects > create needs a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > projects > dashboard list 1`] = `
+{
+  "body": {
+    "hasMore": false,
+    "page": 1,
+    "pageSize": 10,
+    "projects": [
+      {
+        "category": "fullstack",
+        "color": "#123456",
+        "createdAt": "<generated>",
+        "description": "A project",
+        "featured": false,
+        "githubUrl": "https://github.com/x/y",
+        "id": "<id>",
+        "isPlaceholder": false,
+        "liveUrl": "https://example.com",
+        "seo": {
+          "canonicalUrl": "",
+          "metaDescription": "",
+          "metaTitle": "",
+          "nofollow": false,
+          "noindex": false,
+          "ogImage": "",
+        },
+        "slug": "my-project",
+        "tags": [
+          "react",
+        ],
+        "thumbnail": "",
+        "title": "My Project",
+        "updatedAt": "<generated>",
+      },
+      {
+        "category": "fullstack",
+        "color": "#123456",
+        "createdAt": "<generated>",
+        "description": "A project",
+        "featured": false,
+        "githubUrl": "https://github.com/x/y",
+        "id": "<id>",
+        "isPlaceholder": false,
+        "liveUrl": "https://example.com",
+        "seo": {
+          "canonicalUrl": "",
+          "metaDescription": "",
+          "metaTitle": "",
+          "nofollow": false,
+          "noindex": false,
+          "ogImage": "",
+        },
+        "slug": "my-project-2",
+        "tags": [
+          "react",
+        ],
+        "thumbnail": "",
+        "title": "My Project",
+        "updatedAt": "<generated>",
+      },
+    ],
+    "success": true,
+    "total": 2,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > projects > dashboard list needs a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > projects > delete 1`] = `
+{
+  "body": {
+    "message": "Project deleted successfully",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > projects > delete twice 1`] = `
+{
+  "body": {
+    "message": "Project not found",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`API contract > projects > missing fields 1`] = `
+{
+  "body": {
+    "message": "Project validation failed: category: Path \`category\` is required., description: Path \`description\` is required.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > projects > missing slug 1`] = `
+{
+  "body": {
+    "message": "Project not found",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`API contract > projects > public list, empty 1`] = `
+{
+  "body": {
+    "hasMore": false,
+    "page": 1,
+    "pageSize": 3,
+    "projects": [],
+    "success": true,
+    "total": 0,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > projects > public list, paged 1`] = `
+{
+  "body": {
+    "hasMore": true,
+    "page": 1,
+    "pageSize": 1,
+    "projects": [
+      {
+        "category": "fullstack",
+        "color": "#123456",
+        "createdAt": "<generated>",
+        "description": "A project",
+        "featured": false,
+        "githubUrl": "https://github.com/x/y",
+        "id": "<id>",
+        "isPlaceholder": false,
+        "liveUrl": "https://example.com",
+        "seo": {
+          "canonicalUrl": "",
+          "metaDescription": "",
+          "metaTitle": "",
+          "nofollow": false,
+          "noindex": false,
+          "ogImage": "",
+        },
+        "slug": "my-project-2",
+        "tags": [
+          "react",
+        ],
+        "thumbnail": "",
+        "title": "My Project",
+        "updatedAt": "<generated>",
+      },
+    ],
+    "success": true,
+    "total": 2,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > projects > same title, new slug 1`] = `
+{
+  "body": {
+    "project": {
+      "category": "fullstack",
+      "color": "#123456",
+      "createdAt": "<generated>",
+      "description": "A project",
+      "featured": false,
+      "githubUrl": "https://github.com/x/y",
+      "id": "<id>",
+      "isPlaceholder": false,
+      "liveUrl": "https://example.com",
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "my-project-2",
+      "tags": [
+        "react",
+      ],
+      "thumbnail": "",
+      "title": "My Project",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > projects > stats 1`] = `
+{
+  "body": {
+    "stats": {
+      "byCategory": {
+        "fullstack": 2,
+      },
+      "featured": 0,
+      "total": 2,
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > projects > unsafe link 1`] = `
+{
+  "body": {
+    "message": "liveUrl must be an http(s) link",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > projects > update keeps the slug 1`] = `
+{
+  "body": {
+    "project": {
+      "category": "fullstack",
+      "color": "#123456",
+      "createdAt": "<generated>",
+      "description": "A project",
+      "featured": true,
+      "githubUrl": "https://github.com/x/y",
+      "id": "<id>",
+      "isPlaceholder": false,
+      "liveUrl": "https://example.com",
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "my-project",
+      "tags": [
+        "react",
+      ],
+      "thumbnail": "https://res.cloudinary.com/test-cloud/image/upload/v1/portfolio/projects/file-2.png",
+      "title": "Renamed",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > services > by slug 1`] = `
+{
+  "body": {
+    "service": {
+      "color": "#6366f1",
+      "createdAt": "<generated>",
+      "description": "Sites",
+      "features": [
+        {
+          "_id": "<id>",
+          "id": "<id>",
+          "text": "Fast",
+        },
+      ],
+      "icon": "Code2",
+      "id": "<id>",
+      "popular": false,
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "web-development",
+      "tags": [
+        "web",
+      ],
+      "title": "Web Development",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > services > create 1`] = `
+{
+  "body": {
+    "message": "Service created successfully",
+    "service": {
+      "color": "#6366f1",
+      "createdAt": "<generated>",
+      "description": "Sites",
+      "features": [
+        {
+          "_id": "<id>",
+          "id": "<id>",
+          "text": "Fast",
+        },
+      ],
+      "icon": "Code2",
+      "id": "<id>",
+      "popular": false,
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "web-development",
+      "tags": [
+        "web",
+      ],
+      "title": "Web Development",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > services > create needs a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > services > delete 1`] = `
+{
+  "body": {
+    "message": "Service deleted successfully",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > services > delete twice 1`] = `
+{
+  "body": {
+    "message": "Service not found",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`API contract > services > missing fields 1`] = `
+{
+  "body": {
+    "message": "Failed to create service",
+    "success": false,
+  },
+  "status": 500,
+}
+`;
+
+exports[`API contract > services > missing slug 1`] = `
+{
+  "body": {
+    "message": "Service not found",
+    "success": false,
+  },
+  "status": 404,
+}
+`;
+
+exports[`API contract > services > public list 1`] = `
+{
+  "body": {
+    "count": 1,
+    "hasMore": false,
+    "page": 1,
+    "pageSize": 100,
+    "services": [
+      {
+        "color": "#6366f1",
+        "createdAt": "<generated>",
+        "description": "Sites",
+        "features": [
+          {
+            "_id": "<id>",
+            "text": "Fast",
+          },
+        ],
+        "icon": "Code2",
+        "id": "<id>",
+        "popular": false,
+        "seo": {
+          "canonicalUrl": "",
+          "metaDescription": "",
+          "metaTitle": "",
+          "nofollow": false,
+          "noindex": false,
+          "ogImage": "",
+        },
+        "slug": "web-development",
+        "tags": [
+          "web",
+        ],
+        "title": "Web Development",
+        "updatedAt": "<generated>",
+      },
+    ],
+    "success": true,
+    "total": 1,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > services > public list, empty 1`] = `
+{
+  "body": {
+    "count": 0,
+    "hasMore": false,
+    "page": 1,
+    "pageSize": 100,
+    "services": [],
+    "success": true,
+    "total": 0,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > services > stats 1`] = `
+{
+  "body": {
+    "stats": {
+      "features": 1,
+      "popular": 0,
+      "total": 1,
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > services > update 1`] = `
+{
+  "body": {
+    "service": {
+      "color": "#6366f1",
+      "createdAt": "<generated>",
+      "description": "Sites",
+      "features": [
+        {
+          "_id": "<id>",
+          "id": "<id>",
+          "text": "Fast",
+        },
+      ],
+      "icon": "Code2",
+      "id": "<id>",
+      "popular": false,
+      "seo": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "slug": "web-development",
+      "tags": [
+        "web",
+      ],
+      "title": "Renamed",
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > settings > add a social 1`] = `
+{
+  "body": {
+    "settings": {
+      "brand": {
+        "logo": {
+          "icon": "zap",
+          "type": "icon",
+          "url": "",
+        },
+        "name": "Brand",
+        "tagline": "Line",
+      },
+      "id": "<id>",
+      "seo": {
+        "defaultMetaDescription": "",
+        "defaultMetaTitle": "",
+        "defaultOgImage": "",
+        "defaultTitleTemplate": "%s",
+        "siteUrl": "",
+        "twitterHandle": "",
+      },
+      "socialPlacements": {
+        "about": [],
+        "blog": [],
+        "contact": [],
+        "footer": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "homeHero": [],
+        "mobileMenu": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "navbar": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "projects": [],
+        "services": [],
+        "skills": [],
+      },
+      "socials": [
+        {
+          "description": "",
+          "href": "https://github.com",
+          "icon": "github",
+          "iconType": "icon",
+          "id": "legacy-0",
+          "imageUrl": "",
+          "label": "GitHub",
+        },
+        {
+          "description": "",
+          "href": "https://linkedin.com",
+          "icon": "linkedin",
+          "iconType": "icon",
+          "id": "legacy-1",
+          "imageUrl": "",
+          "label": "LinkedIn",
+        },
+        {
+          "description": "",
+          "href": "https://twitter.com",
+          "icon": "twitter",
+          "iconType": "icon",
+          "id": "legacy-2",
+          "imageUrl": "",
+          "label": "Twitter",
+        },
+        {
+          "description": "",
+          "href": "https://github.com/x",
+          "icon": "github",
+          "iconType": "icon",
+          "id": "<id>",
+          "imageUrl": "",
+          "label": "GitHub",
+        },
+      ],
+      "socialsConfigured": true,
+    },
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > settings > default 1`] = `
+{
+  "body": {
+    "settings": {
+      "brand": {
+        "logo": {
+          "icon": "zap",
+          "type": "icon",
+          "url": "",
+        },
+        "name": "Ethian",
+        "tagline": "Full Stack Engineer",
+      },
+      "id": "<id>",
+      "seo": {
+        "defaultMetaDescription": "",
+        "defaultMetaTitle": "",
+        "defaultOgImage": "",
+        "defaultTitleTemplate": "%s",
+        "siteUrl": "",
+        "twitterHandle": "",
+      },
+      "socialPlacements": {
+        "about": [],
+        "blog": [],
+        "contact": [],
+        "footer": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "homeHero": [],
+        "mobileMenu": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "navbar": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "projects": [],
+        "services": [],
+        "skills": [],
+      },
+      "socials": [
+        {
+          "description": "",
+          "href": "https://github.com",
+          "icon": "github",
+          "iconType": "icon",
+          "id": "legacy-0",
+          "imageUrl": "",
+          "label": "GitHub",
+        },
+        {
+          "description": "",
+          "href": "https://linkedin.com",
+          "icon": "linkedin",
+          "iconType": "icon",
+          "id": "legacy-1",
+          "imageUrl": "",
+          "label": "LinkedIn",
+        },
+        {
+          "description": "",
+          "href": "https://twitter.com",
+          "icon": "twitter",
+          "iconType": "icon",
+          "id": "legacy-2",
+          "imageUrl": "",
+          "label": "Twitter",
+        },
+      ],
+      "socialsConfigured": true,
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > settings > delete a social 1`] = `
+{
+  "body": {
+    "settings": {
+      "brand": {
+        "logo": {
+          "icon": "zap",
+          "type": "icon",
+          "url": "",
+        },
+        "name": "Brand",
+        "tagline": "Line",
+      },
+      "id": "<id>",
+      "seo": {
+        "defaultMetaDescription": "",
+        "defaultMetaTitle": "",
+        "defaultOgImage": "",
+        "defaultTitleTemplate": "%s",
+        "siteUrl": "",
+        "twitterHandle": "",
+      },
+      "socialPlacements": {
+        "about": [],
+        "blog": [],
+        "contact": [],
+        "footer": [],
+        "homeHero": [],
+        "mobileMenu": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "navbar": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "projects": [],
+        "services": [],
+        "skills": [],
+      },
+      "socials": [
+        {
+          "description": "",
+          "href": "https://github.com",
+          "icon": "github",
+          "iconType": "icon",
+          "id": "legacy-0",
+          "imageUrl": "",
+          "label": "GitHub",
+        },
+        {
+          "description": "",
+          "href": "https://linkedin.com",
+          "icon": "linkedin",
+          "iconType": "icon",
+          "id": "legacy-1",
+          "imageUrl": "",
+          "label": "LinkedIn",
+        },
+        {
+          "description": "",
+          "href": "https://twitter.com",
+          "icon": "twitter",
+          "iconType": "icon",
+          "id": "legacy-2",
+          "imageUrl": "",
+          "label": "Twitter",
+        },
+      ],
+      "socialsConfigured": true,
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > settings > edit a social 1`] = `
+{
+  "body": {
+    "settings": {
+      "brand": {
+        "logo": {
+          "icon": "zap",
+          "type": "icon",
+          "url": "",
+        },
+        "name": "Brand",
+        "tagline": "Line",
+      },
+      "id": "<id>",
+      "seo": {
+        "defaultMetaDescription": "",
+        "defaultMetaTitle": "",
+        "defaultOgImage": "",
+        "defaultTitleTemplate": "%s",
+        "siteUrl": "",
+        "twitterHandle": "",
+      },
+      "socialPlacements": {
+        "about": [],
+        "blog": [],
+        "contact": [],
+        "footer": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "homeHero": [],
+        "mobileMenu": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "navbar": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "projects": [],
+        "services": [],
+        "skills": [],
+      },
+      "socials": [
+        {
+          "description": "",
+          "href": "https://github.com",
+          "icon": "github",
+          "iconType": "icon",
+          "id": "legacy-0",
+          "imageUrl": "",
+          "label": "GitHub",
+        },
+        {
+          "description": "",
+          "href": "https://linkedin.com",
+          "icon": "linkedin",
+          "iconType": "icon",
+          "id": "legacy-1",
+          "imageUrl": "",
+          "label": "LinkedIn",
+        },
+        {
+          "description": "",
+          "href": "https://twitter.com",
+          "icon": "twitter",
+          "iconType": "icon",
+          "id": "legacy-2",
+          "imageUrl": "",
+          "label": "Twitter",
+        },
+        {
+          "description": "",
+          "href": "https://github.com/y",
+          "icon": "github",
+          "iconType": "icon",
+          "id": "<id>",
+          "imageUrl": "",
+          "label": "Code",
+        },
+      ],
+      "socialsConfigured": true,
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > settings > og image 1`] = `
+{
+  "body": {
+    "success": true,
+    "url": "https://res.cloudinary.com/test-cloud/image/upload/c_fill,g_auto,w_1200,h_630,f_jpg,q_auto/v1/portfolio/og/file-4.png",
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > settings > og image without a file 1`] = `
+{
+  "body": {
+    "message": "Choose an image to upload",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > settings > page seo 1`] = `
+{
+  "body": {
+    "page": "home",
+    "seo": {
+      "canonicalUrl": "",
+      "metaDescription": "",
+      "metaTitle": "Landing",
+      "nofollow": false,
+      "noindex": false,
+      "ogImage": "",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > settings > page seo, default 1`] = `
+{
+  "body": {
+    "pages": {
+      "about": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "blog": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "contact": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "home": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "projects": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "services": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+      "skills": {
+        "canonicalUrl": "",
+        "metaDescription": "",
+        "metaTitle": "",
+        "nofollow": false,
+        "noindex": false,
+        "ogImage": "",
+      },
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > settings > placements 1`] = `
+{
+  "body": {
+    "settings": {
+      "brand": {
+        "logo": {
+          "icon": "zap",
+          "type": "icon",
+          "url": "",
+        },
+        "name": "Brand",
+        "tagline": "Line",
+      },
+      "id": "<id>",
+      "seo": {
+        "defaultMetaDescription": "",
+        "defaultMetaTitle": "",
+        "defaultOgImage": "",
+        "defaultTitleTemplate": "%s",
+        "siteUrl": "",
+        "twitterHandle": "",
+      },
+      "socialPlacements": {
+        "about": [],
+        "blog": [],
+        "contact": [],
+        "footer": [
+          "<id>",
+        ],
+        "homeHero": [],
+        "mobileMenu": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "navbar": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "projects": [],
+        "services": [],
+        "skills": [],
+      },
+      "socials": [
+        {
+          "description": "",
+          "href": "https://github.com",
+          "icon": "github",
+          "iconType": "icon",
+          "id": "legacy-0",
+          "imageUrl": "",
+          "label": "GitHub",
+        },
+        {
+          "description": "",
+          "href": "https://linkedin.com",
+          "icon": "linkedin",
+          "iconType": "icon",
+          "id": "legacy-1",
+          "imageUrl": "",
+          "label": "LinkedIn",
+        },
+        {
+          "description": "",
+          "href": "https://twitter.com",
+          "icon": "twitter",
+          "iconType": "icon",
+          "id": "legacy-2",
+          "imageUrl": "",
+          "label": "Twitter",
+        },
+        {
+          "description": "",
+          "href": "https://github.com/y",
+          "icon": "github",
+          "iconType": "icon",
+          "id": "<id>",
+          "imageUrl": "",
+          "label": "Code",
+        },
+      ],
+      "socialsConfigured": true,
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > settings > site seo 1`] = `
+{
+  "body": {
+    "settings": {
+      "brand": {
+        "logo": {
+          "icon": "zap",
+          "type": "icon",
+          "url": "",
+        },
+        "name": "Brand",
+        "tagline": "Line",
+      },
+      "id": "<id>",
+      "seo": {
+        "defaultMetaDescription": "",
+        "defaultMetaTitle": "",
+        "defaultOgImage": "",
+        "defaultTitleTemplate": "%s",
+        "siteUrl": "",
+        "twitterHandle": "",
+      },
+      "socialPlacements": {
+        "about": [],
+        "blog": [],
+        "contact": [],
+        "footer": [],
+        "homeHero": [],
+        "mobileMenu": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "navbar": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "projects": [],
+        "services": [],
+        "skills": [],
+      },
+      "socials": [
+        {
+          "description": "",
+          "href": "https://github.com",
+          "icon": "github",
+          "iconType": "icon",
+          "id": "legacy-0",
+          "imageUrl": "",
+          "label": "GitHub",
+        },
+        {
+          "description": "",
+          "href": "https://linkedin.com",
+          "icon": "linkedin",
+          "iconType": "icon",
+          "id": "legacy-1",
+          "imageUrl": "",
+          "label": "LinkedIn",
+        },
+        {
+          "description": "",
+          "href": "https://twitter.com",
+          "icon": "twitter",
+          "iconType": "icon",
+          "id": "legacy-2",
+          "imageUrl": "",
+          "label": "Twitter",
+        },
+      ],
+      "socialsConfigured": true,
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > settings > social missing fields 1`] = `
+{
+  "body": {
+    "message": "Label is required",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > settings > socials setup 1`] = `
+{
+  "body": {
+    "settings": {
+      "brand": {
+        "logo": {
+          "icon": "zap",
+          "type": "icon",
+          "url": "",
+        },
+        "name": "Brand",
+        "tagline": "Line",
+      },
+      "id": "<id>",
+      "seo": {
+        "defaultMetaDescription": "",
+        "defaultMetaTitle": "",
+        "defaultOgImage": "",
+        "defaultTitleTemplate": "%s",
+        "siteUrl": "",
+        "twitterHandle": "",
+      },
+      "socialPlacements": {
+        "about": [],
+        "blog": [],
+        "contact": [],
+        "footer": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "homeHero": [],
+        "mobileMenu": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "navbar": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "projects": [],
+        "services": [],
+        "skills": [],
+      },
+      "socials": [
+        {
+          "description": "",
+          "href": "https://github.com",
+          "icon": "github",
+          "iconType": "icon",
+          "id": "legacy-0",
+          "imageUrl": "",
+          "label": "GitHub",
+        },
+        {
+          "description": "",
+          "href": "https://linkedin.com",
+          "icon": "linkedin",
+          "iconType": "icon",
+          "id": "legacy-1",
+          "imageUrl": "",
+          "label": "LinkedIn",
+        },
+        {
+          "description": "",
+          "href": "https://twitter.com",
+          "icon": "twitter",
+          "iconType": "icon",
+          "id": "legacy-2",
+          "imageUrl": "",
+          "label": "Twitter",
+        },
+      ],
+      "socialsConfigured": true,
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > settings > unknown page 1`] = `
+{
+  "body": {
+    "message": "page must be one of: home, about, skills, services, projects, blog, contact",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > settings > update brand 1`] = `
+{
+  "body": {
+    "settings": {
+      "brand": {
+        "logo": {
+          "icon": "zap",
+          "type": "icon",
+          "url": "",
+        },
+        "name": "Brand",
+        "tagline": "Line",
+      },
+      "id": "<id>",
+      "seo": {
+        "defaultMetaDescription": "",
+        "defaultMetaTitle": "",
+        "defaultOgImage": "",
+        "defaultTitleTemplate": "%s",
+        "siteUrl": "",
+        "twitterHandle": "",
+      },
+      "socialPlacements": {
+        "about": [],
+        "blog": [],
+        "contact": [],
+        "footer": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "homeHero": [],
+        "mobileMenu": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "navbar": [
+          "legacy-0",
+          "legacy-1",
+          "legacy-2",
+        ],
+        "projects": [],
+        "services": [],
+        "skills": [],
+      },
+      "socials": [
+        {
+          "description": "",
+          "href": "https://github.com",
+          "icon": "github",
+          "iconType": "icon",
+          "id": "legacy-0",
+          "imageUrl": "",
+          "label": "GitHub",
+        },
+        {
+          "description": "",
+          "href": "https://linkedin.com",
+          "icon": "linkedin",
+          "iconType": "icon",
+          "id": "legacy-1",
+          "imageUrl": "",
+          "label": "LinkedIn",
+        },
+        {
+          "description": "",
+          "href": "https://twitter.com",
+          "icon": "twitter",
+          "iconType": "icon",
+          "id": "legacy-2",
+          "imageUrl": "",
+          "label": "Twitter",
+        },
+      ],
+      "socialsConfigured": true,
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > settings > write needs a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > skills > add a skill 1`] = `
+{
+  "body": {
+    "category": {
+      "createdAt": "<generated>",
+      "id": "<id>",
+      "label": "Frontend",
+      "order": 0,
+      "skills": [
+        {
+          "icon": "Code2",
+          "name": "React",
+        },
+      ],
+      "updatedAt": "<generated>",
+    },
+    "message": "Skill created successfully.",
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > skills > add the same skill 1`] = `
+{
+  "body": {
+    "message": "Skill already exists.",
+    "success": false,
+  },
+  "status": 409,
+}
+`;
+
+exports[`API contract > skills > create a category 1`] = `
+{
+  "body": {
+    "category": {
+      "createdAt": "<generated>",
+      "id": "<id>",
+      "label": "Web",
+      "order": 0,
+      "skills": [],
+      "updatedAt": "<generated>",
+    },
+    "message": "Category created successfully.",
+    "success": true,
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > skills > create needs a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > skills > delete a category 1`] = `
+{
+  "body": {
+    "message": "Category deleted successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > skills > delete a skill 1`] = `
+{
+  "body": {
+    "category": {
+      "createdAt": "<generated>",
+      "id": "<id>",
+      "label": "Data",
+      "order": 1,
+      "skills": [],
+      "updatedAt": "<generated>",
+    },
+    "message": "Skill deleted successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > skills > edit a skill 1`] = `
+{
+  "body": {
+    "category": {
+      "createdAt": "<generated>",
+      "id": "<id>",
+      "label": "Frontend",
+      "order": 0,
+      "skills": [
+        {
+          "icon": "Code2",
+          "name": "Next",
+        },
+      ],
+      "updatedAt": "<generated>",
+    },
+    "message": "Skill updated successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > skills > missing label 1`] = `
+{
+  "body": {
+    "message": "Category label is required.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > skills > move a skill 1`] = `
+{
+  "body": {
+    "destinationCategory": {
+      "createdAt": "<generated>",
+      "id": "<id>",
+      "label": "Data",
+      "order": 1,
+      "skills": [
+        {
+          "icon": "Code2",
+          "name": "Next",
+        },
+      ],
+      "updatedAt": "<generated>",
+    },
+    "message": "Skill moved successfully.",
+    "sourceCategory": {
+      "createdAt": "<generated>",
+      "id": "<id>",
+      "label": "Frontend",
+      "order": 0,
+      "skills": [],
+      "updatedAt": "<generated>",
+    },
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > skills > public list 1`] = `
+{
+  "body": {
+    "categories": [
+      {
+        "createdAt": "<generated>",
+        "id": "<id>",
+        "label": "Frontend",
+        "order": 0,
+        "skills": [],
+        "updatedAt": "<generated>",
+      },
+      {
+        "createdAt": "<generated>",
+        "id": "<id>",
+        "label": "Data",
+        "order": 1,
+        "skills": [
+          {
+            "icon": "Code2",
+            "name": "Next",
+          },
+        ],
+        "updatedAt": "<generated>",
+      },
+    ],
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > skills > public list, empty 1`] = `
+{
+  "body": {
+    "categories": [],
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > skills > rename 1`] = `
+{
+  "body": {
+    "category": {
+      "createdAt": "<generated>",
+      "id": "<id>",
+      "label": "Frontend",
+      "order": 0,
+      "skills": [],
+      "updatedAt": "<generated>",
+    },
+    "message": "Category updated successfully.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > users and roles > bad email 1`] = `
+{
+  "body": {
+    "field": "email",
+    "message": "A valid email address is required.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > users and roles > bad role 1`] = `
+{
+  "body": {
+    "field": "role",
+    "message": "Invalid role.",
+    "success": false,
+  },
+  "status": 400,
+}
+`;
+
+exports[`API contract > users and roles > change role 1`] = `
+{
+  "body": {
+    "message": "Role updated successfully.",
+    "success": true,
+    "user": {
+      "createdAt": "<generated>",
+      "email": "editor@test.invalid",
+      "id": "<id>",
+      "isActive": true,
+      "role": "manager",
+      "updatedAt": "<generated>",
+    },
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > users and roles > create 1`] = `
+{
+  "body": {
+    "message": "User created successfully.",
+    "success": true,
+    "user": {
+      "createdAt": "<generated>",
+      "email": "editor@test.invalid",
+      "id": "<id>",
+      "isActive": true,
+      "role": "editor",
+      "updatedAt": "<generated>",
+    },
+  },
+  "status": 201,
+}
+`;
+
+exports[`API contract > users and roles > delete 1`] = `
+{
+  "body": {
+    "id": "<id>",
+    "message": "User deleted.",
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > users and roles > disable 1`] = `
+{
+  "body": {
+    "message": "Account disabled.",
+    "success": true,
+    "user": {
+      "createdAt": "<generated>",
+      "email": "editor@test.invalid",
+      "id": "<id>",
+      "isActive": false,
+      "role": "manager",
+      "updatedAt": "<generated>",
+    },
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > users and roles > list 1`] = `
+{
+  "body": {
+    "success": true,
+    "total": 2,
+    "users": [
+      {
+        "createdAt": "<generated>",
+        "email": "editor@test.invalid",
+        "id": "<id>",
+        "isActive": true,
+        "role": "editor",
+        "updatedAt": "<generated>",
+      },
+      {
+        "createdAt": "<generated>",
+        "email": "super_admin@test.invalid",
+        "id": "<id>",
+        "isActive": true,
+        "role": "super_admin",
+        "updatedAt": "<generated>",
+      },
+    ],
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > users and roles > reset password 1`] = `
+{
+  "body": {
+    "success": true,
+    "temporaryPassword": "<generated>",
+    "user": {
+      "createdAt": "<generated>",
+      "email": "editor@test.invalid",
+      "id": "<id>",
+      "isActive": false,
+      "role": "manager",
+      "updatedAt": "<generated>",
+    },
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > users and roles > role config 1`] = `
+{
+  "body": {
+    "roles": {
+      "admin": [
+        "hero.view",
+        "hero.create",
+        "hero.edit",
+        "hero.delete",
+        "about.view",
+        "about.create",
+        "about.edit",
+        "about.delete",
+        "projects.view",
+        "projects.create",
+        "projects.edit",
+        "projects.delete",
+        "skills.view",
+        "skills.create",
+        "skills.edit",
+        "skills.delete",
+        "services.view",
+        "services.create",
+        "services.edit",
+        "services.delete",
+        "blog.view",
+        "blog.create",
+        "blog.edit",
+        "blog.delete",
+        "contact.view",
+        "contact.create",
+        "contact.edit",
+        "contact.delete",
+        "messages.view",
+        "messages.edit",
+        "messages.delete",
+        "socialLinks.view",
+        "socialLinks.create",
+        "socialLinks.edit",
+        "socialLinks.delete",
+        "seo.view",
+        "seo.edit",
+        "settings.view",
+        "settings.edit",
+        "users.view",
+        "users.create",
+        "users.edit",
+        "users.delete",
+      ],
+      "editor": [
+        "hero.view",
+        "hero.create",
+        "hero.edit",
+        "about.view",
+        "about.create",
+        "about.edit",
+        "projects.view",
+        "projects.create",
+        "projects.edit",
+        "skills.view",
+        "skills.create",
+        "skills.edit",
+        "services.view",
+        "services.create",
+        "services.edit",
+        "blog.view",
+        "blog.create",
+        "blog.edit",
+        "contact.view",
+        "contact.create",
+        "contact.edit",
+        "messages.view",
+        "messages.edit",
+        "socialLinks.view",
+        "socialLinks.create",
+        "socialLinks.edit",
+        "seo.view",
+        "seo.edit",
+        "settings.view",
+        "settings.edit",
+      ],
+      "manager": [
+        "hero.view",
+        "hero.create",
+        "hero.edit",
+        "hero.delete",
+        "about.view",
+        "about.create",
+        "about.edit",
+        "about.delete",
+        "projects.view",
+        "projects.create",
+        "projects.edit",
+        "projects.delete",
+        "skills.view",
+        "skills.create",
+        "skills.edit",
+        "skills.delete",
+        "services.view",
+        "services.create",
+        "services.edit",
+        "services.delete",
+        "blog.view",
+        "blog.create",
+        "blog.edit",
+        "blog.delete",
+        "contact.view",
+        "contact.create",
+        "contact.edit",
+        "contact.delete",
+        "messages.view",
+        "messages.edit",
+        "messages.delete",
+        "socialLinks.view",
+        "socialLinks.create",
+        "socialLinks.edit",
+        "socialLinks.delete",
+        "seo.view",
+        "seo.edit",
+        "settings.view",
+        "settings.edit",
+      ],
+      "super_admin": [
+        "hero.view",
+        "hero.create",
+        "hero.edit",
+        "hero.delete",
+        "about.view",
+        "about.create",
+        "about.edit",
+        "about.delete",
+        "projects.view",
+        "projects.create",
+        "projects.edit",
+        "projects.delete",
+        "skills.view",
+        "skills.create",
+        "skills.edit",
+        "skills.delete",
+        "services.view",
+        "services.create",
+        "services.edit",
+        "services.delete",
+        "blog.view",
+        "blog.create",
+        "blog.edit",
+        "blog.delete",
+        "contact.view",
+        "contact.create",
+        "contact.edit",
+        "contact.delete",
+        "messages.view",
+        "messages.edit",
+        "messages.delete",
+        "socialLinks.view",
+        "socialLinks.create",
+        "socialLinks.edit",
+        "socialLinks.delete",
+        "seo.view",
+        "seo.edit",
+        "settings.view",
+        "settings.edit",
+        "users.view",
+        "users.create",
+        "users.edit",
+        "users.delete",
+      ],
+    },
+    "sections": [
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "hero",
+        "label": "Hero",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "about",
+        "label": "About",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "projects",
+        "label": "Projects",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "skills",
+        "label": "Skills",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "services",
+        "label": "Services",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "blog",
+        "label": "Blogs",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "contact",
+        "label": "Contact",
+      },
+      {
+        "actions": [
+          "view",
+          "edit",
+          "delete",
+        ],
+        "key": "messages",
+        "label": "Messages",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "socialLinks",
+        "label": "Social Links",
+      },
+      {
+        "actions": [
+          "view",
+          "edit",
+        ],
+        "key": "seo",
+        "label": "SEO",
+      },
+      {
+        "actions": [
+          "view",
+          "edit",
+        ],
+        "key": "settings",
+        "label": "Site Settings",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "users",
+        "label": "Users",
+      },
+    ],
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > users and roles > roles need a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;
+
+exports[`API contract > users and roles > save role config 1`] = `
+{
+  "body": {
+    "roles": {
+      "admin": [
+        "hero.view",
+        "hero.create",
+        "hero.edit",
+        "hero.delete",
+        "about.view",
+        "about.create",
+        "about.edit",
+        "about.delete",
+        "projects.view",
+        "projects.create",
+        "projects.edit",
+        "projects.delete",
+        "skills.view",
+        "skills.create",
+        "skills.edit",
+        "skills.delete",
+        "services.view",
+        "services.create",
+        "services.edit",
+        "services.delete",
+        "blog.view",
+        "blog.create",
+        "blog.edit",
+        "blog.delete",
+        "contact.view",
+        "contact.create",
+        "contact.edit",
+        "contact.delete",
+        "messages.view",
+        "messages.edit",
+        "messages.delete",
+        "socialLinks.view",
+        "socialLinks.create",
+        "socialLinks.edit",
+        "socialLinks.delete",
+        "seo.view",
+        "seo.edit",
+        "settings.view",
+        "settings.edit",
+        "users.view",
+        "users.create",
+        "users.edit",
+        "users.delete",
+      ],
+      "editor": [
+        "hero.view",
+      ],
+      "manager": [
+        "hero.view",
+        "hero.create",
+        "hero.edit",
+        "hero.delete",
+        "about.view",
+        "about.create",
+        "about.edit",
+        "about.delete",
+        "projects.view",
+        "projects.create",
+        "projects.edit",
+        "projects.delete",
+        "skills.view",
+        "skills.create",
+        "skills.edit",
+        "skills.delete",
+        "services.view",
+        "services.create",
+        "services.edit",
+        "services.delete",
+        "blog.view",
+        "blog.create",
+        "blog.edit",
+        "blog.delete",
+        "contact.view",
+        "contact.create",
+        "contact.edit",
+        "contact.delete",
+        "messages.view",
+        "messages.edit",
+        "messages.delete",
+        "socialLinks.view",
+        "socialLinks.create",
+        "socialLinks.edit",
+        "socialLinks.delete",
+        "seo.view",
+        "seo.edit",
+        "settings.view",
+        "settings.edit",
+      ],
+      "super_admin": [
+        "hero.view",
+        "hero.create",
+        "hero.edit",
+        "hero.delete",
+        "about.view",
+        "about.create",
+        "about.edit",
+        "about.delete",
+        "projects.view",
+        "projects.create",
+        "projects.edit",
+        "projects.delete",
+        "skills.view",
+        "skills.create",
+        "skills.edit",
+        "skills.delete",
+        "services.view",
+        "services.create",
+        "services.edit",
+        "services.delete",
+        "blog.view",
+        "blog.create",
+        "blog.edit",
+        "blog.delete",
+        "contact.view",
+        "contact.create",
+        "contact.edit",
+        "contact.delete",
+        "messages.view",
+        "messages.edit",
+        "messages.delete",
+        "socialLinks.view",
+        "socialLinks.create",
+        "socialLinks.edit",
+        "socialLinks.delete",
+        "seo.view",
+        "seo.edit",
+        "settings.view",
+        "settings.edit",
+        "users.view",
+        "users.create",
+        "users.edit",
+        "users.delete",
+      ],
+    },
+    "sections": [
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "hero",
+        "label": "Hero",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "about",
+        "label": "About",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "projects",
+        "label": "Projects",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "skills",
+        "label": "Skills",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "services",
+        "label": "Services",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "blog",
+        "label": "Blogs",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "contact",
+        "label": "Contact",
+      },
+      {
+        "actions": [
+          "view",
+          "edit",
+          "delete",
+        ],
+        "key": "messages",
+        "label": "Messages",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "socialLinks",
+        "label": "Social Links",
+      },
+      {
+        "actions": [
+          "view",
+          "edit",
+        ],
+        "key": "seo",
+        "label": "SEO",
+      },
+      {
+        "actions": [
+          "view",
+          "edit",
+        ],
+        "key": "settings",
+        "label": "Site Settings",
+      },
+      {
+        "actions": [
+          "view",
+          "create",
+          "edit",
+          "delete",
+        ],
+        "key": "users",
+        "label": "Users",
+      },
+    ],
+    "success": true,
+  },
+  "status": 200,
+}
+`;
+
+exports[`API contract > users and roles > users need a session 1`] = `
+{
+  "body": {
+    "message": "Access denied. No token provided.",
+    "success": false,
+  },
+  "status": 401,
+}
+`;

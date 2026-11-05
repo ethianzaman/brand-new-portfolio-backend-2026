@@ -1,3 +1,4 @@
+import { publicCache } from "../middleware/publicCache";
 import { Router } from "express";
 import {
   getBlogs,
@@ -15,14 +16,14 @@ import { upload } from "../middleware/uploadMiddleware";
 const router = Router();
 
 // Public
-router.get("/", getBlogs);
-router.get("/slug/:slug", getBlogBySlug);
+router.get("/", publicCache("blogs"), getBlogs);
+router.get("/slug/:slug", publicCache("blogs"), getBlogBySlug);
 
 // NOTE: static segments must be registered BEFORE "/:id", otherwise
 // "/all" is matched as an id and Blog.findById("all") throws a CastError
 // (HTTP 500). Same contract as projects: reads are public, writes protected.
-router.get("/all", getAllBlogs);
-router.get("/stats", getBlogStats);
+router.get("/all", protect, requirePermission("blog.view"), getAllBlogs);
+router.get("/stats", protect, requirePermission("blog.view"), getBlogStats);
 router.get("/:id", getBlogById);
 
 // Protected — dashboard only
@@ -30,17 +31,17 @@ router.get("/:id", getBlogById);
 router.post(
   "/create",
   protect,
-  requirePermission("create"),
+  requirePermission("blog.create"),
   upload.single("image"),
   createBlog
 );
 router.put(
   "/:id",
   protect,
-  requirePermission("update"),
+  requirePermission("blog.edit"),
   upload.single("image"),
   updateBlog
 );
-router.delete("/:id", protect, requirePermission("delete"), deleteBlog);
+router.delete("/:id", protect, requirePermission("blog.delete"), deleteBlog);
 
 export default router;

@@ -77,6 +77,5 @@ ServiceSchema.index({ title: 1 });
 ServiceSchema.index({ tags: 1 });
 ServiceSchema.index({ popular: 1 });
 
-// export const Service = mongoose.model<IService>("Service", ServiceSchema);
 export const Service =
   mongoose.models.Service || mongoose.model<IService>("Service", ServiceSchema);

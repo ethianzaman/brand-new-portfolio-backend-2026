@@ -1,15 +1,20 @@
 import { Router } from 'express'
-import { login, signUp, logout, getMe } from '../controllers/auth.controller'
+import { changePassword, login, logout, getMe } from '../controllers/auth.controller'
 import { protect } from '../middleware/auth'
+import {
+  changePasswordLimiter,
+  loginAccountLimiter,
+  loginIpLimiter,
+} from '../middleware/rateLimit'
 
 const router = Router()
 
-// Public registration is disabled — kept only for a clear 403 response.
-router.post('/sign-up', signUp)
-router.post('/login', login)
+router.post('/login', loginIpLimiter, loginAccountLimiter, login)
 router.post('/logout', logout)
 
 // Current authenticated user (role + status read fresh from the DB).
 router.get('/me', protect, getMe)
+
+router.post('/change-password', protect, changePasswordLimiter, changePassword)
 
 export default router
