@@ -1,3 +1,4 @@
+import { publicCache } from "../middleware/publicCache";
 import { Router } from "express";
 import {
   getAbout,
@@ -18,14 +19,17 @@ import { upload } from "../middleware/uploadMiddleware";
 const router = Router();
 
 // Public
-router.get("/", getAbout);
+router.get("/", publicCache("about"), getAbout);
 
 // Hero — Admin, Manager, Editor
 router.put(
   "/hero",
   protect,
-  requirePermission("update"),
-  upload.single("image"),
+  requirePermission("about.edit"),
+  upload.fields([
+    { name: "image", maxCount: 1 },
+    { name: "resume", maxCount: 1 },
+  ]),
   updateHero
 );
 
@@ -33,19 +37,19 @@ router.put(
 router.post(
   "/experiences",
   protect,
-  requirePermission("create"),
+  requirePermission("about.create"),
   createExperience
 );
 router.put(
   "/experiences/:id",
   protect,
-  requirePermission("update"),
+  requirePermission("about.edit"),
   updateExperience
 );
 router.delete(
   "/experiences/:id",
   protect,
-  requirePermission("delete"),
+  requirePermission("about.delete"),
   deleteExperience
 );
 
@@ -53,25 +57,25 @@ router.delete(
 router.post(
   "/educations",
   protect,
-  requirePermission("create"),
+  requirePermission("about.create"),
   createEducation
 );
 router.put(
   "/educations/:id",
   protect,
-  requirePermission("update"),
+  requirePermission("about.edit"),
   updateEducation
 );
 router.delete(
   "/educations/:id",
   protect,
-  requirePermission("delete"),
+  requirePermission("about.delete"),
   deleteEducation
 );
 
 // Values
-router.post("/values", protect, requirePermission("create"), createValue);
-router.put("/values/:id", protect, requirePermission("update"), updateValue);
-router.delete("/values/:id", protect, requirePermission("delete"), deleteValue);
+router.post("/values", protect, requirePermission("about.create"), createValue);
+router.put("/values/:id", protect, requirePermission("about.edit"), updateValue);
+router.delete("/values/:id", protect, requirePermission("about.delete"), deleteValue);
 
 export default router;

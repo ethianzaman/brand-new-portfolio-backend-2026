@@ -1,4 +1,4 @@
-import * as express from 'express';
+import 'express';
 import { UserRole } from '../models/User';
 
 declare global {

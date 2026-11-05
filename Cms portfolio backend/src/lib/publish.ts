@@ -1,3 +1,4 @@
+import { cacheDeletePrefix } from "./cache";
 import { broadcast } from "./sse";
 
 /**
@@ -9,7 +10,7 @@ import { broadcast } from "./sse";
  * and BEFORE `res.json()`:
  *
  *     await doc.save();
- *     await publishChange("home");
+ *     await publishChange("hero");
  *     res.json({ success: true, ... });
  *
  * Order matters, and it is deliberate:
@@ -22,7 +23,7 @@ import { broadcast } from "./sse";
  * we log and carry on. A CRUD request must NEVER fail because the frontend
  * cache could not be invalidated — the 60s ISR window will pick it up anyway.
  *
- * Tags must match the frontend exactly: home, about, contact, skills,
+ * Tags must match the frontend exactly: hero, about, contact, skills,
  * projects, settings, blog, and `blog-${slug}` for a single post.
  */
 
@@ -74,6 +75,9 @@ async function revalidateTag(tag: string): Promise<boolean> {
 }
 
 export async function publishChange(tag: string): Promise<void> {
+  // Before revalidating, or Next.js would re-fetch the old payload from here.
+  cacheDeletePrefix(`public:${tag}:`);
+
   // 1️⃣  Drop the Next.js cache entry for this tag.
   await revalidateTag(tag);
 

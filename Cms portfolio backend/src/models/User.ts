@@ -1,7 +1,10 @@
 import mongoose, { Document, Schema, Types } from 'mongoose'
 import bcrypt from 'bcryptjs'
 
-export const USER_ROLES = ['admin', 'manager', 'editor'] as const
+export const USER_ROLES = ['super_admin', 'admin', 'manager', 'editor'] as const
+
+/** Super Admin always has everything, so only these roles have editable access. */
+export const CONFIGURABLE_ROLES = ['admin', 'manager', 'editor'] as const
 
 export type UserRole = (typeof USER_ROLES)[number]
 
@@ -17,6 +20,8 @@ export interface IUser extends Document {
   password: string
   role: UserRole
   isActive: boolean
+  /** Raised on logout, which invalidates every token issued before it. */
+  tokenVersion: number
   createdAt: Date
   updatedAt: Date
   comparePassword: (plain: string) => Promise<boolean>
@@ -30,6 +35,10 @@ const UserSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
       trim: true,
+    },
+    tokenVersion: {
+      type: Number,
+      default: 0,
     },
     password: {
       type: String,

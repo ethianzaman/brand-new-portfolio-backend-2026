@@ -1,5 +1,6 @@
 import type { ISeo } from "../models/shared/seoSchema";
 import { SEO_FIELD_LIMITS } from "../models/shared/seoSchema";
+import { badRequest } from "../lib/http";
 
 /**
  * ─────────────────────────────────────────────────────────────────────────
@@ -131,4 +132,31 @@ export function serializeSeo(doc: unknown): ISeo {
     noindex: cleanBoolean(raw.noindex),
     nofollow: cleanBoolean(raw.nofollow),
   };
+}
+
+/** Validated SEO input, or a 400 when a link breaks the policy. */
+export function requireValidSeo(input: unknown): ISeo {
+  const seo = normaliseSeo(input);
+  if (seo === null) {
+    throw badRequest(
+      "Invalid SEO data: canonicalUrl and ogImage must be https URLs or same-site paths",
+    );
+  }
+  return seo;
+}
+
+/** A document (hydrated or lean) with its `seo` always in the full shape. */
+export function withSeo(doc: unknown): Record<string, unknown> {
+  if (doc === null || doc === undefined) {
+    return { seo: serializeSeo(undefined) };
+  }
+  const plain =
+    typeof (doc as any).toObject === "function"
+      ? (doc as any).toObject()
+      : (doc as Record<string, unknown>);
+  return { ...plain, seo: serializeSeo((plain as any).seo) };
+}
+
+export function withSeoList(docs: unknown[]) {
+  return docs.map((doc) => withSeo(doc));
 }

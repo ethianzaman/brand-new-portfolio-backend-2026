@@ -99,3 +99,10 @@ export function buildPageMeta(
     pageSize,
   };
 }
+
+/** The page to fetch, from raw query values. */
+export function pageWindow(page: unknown, pageSize: unknown, defaultSize: number) {
+  const pageNum = clampInt(page, 1, 1, 10_000);
+  const size = clampInt(pageSize, defaultSize, 1, MAX_PAGE_SIZE);
+  return { pageNum, size, skip: (pageNum - 1) * size };
+}
