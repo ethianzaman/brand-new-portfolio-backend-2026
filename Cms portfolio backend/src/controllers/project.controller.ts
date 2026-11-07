@@ -1,5 +1,6 @@
 import { handle, WRITE_FAILURE } from "../lib/http";
 import * as projects from "../services/project.service";
+import type { ProjectFiles } from "../services/project.service";
 
 export const getProjects = handle(async (req, res) => {
   res.status(200).json({ success: true, ...(await projects.listPublic(req.query)) });
@@ -22,12 +23,16 @@ export const getProjectBySlug = handle(async (req, res) => {
 });
 
 export const createProject = handle(async (req, res) => {
-  const project = await projects.create(req.body, req.file);
+  const project = await projects.create(req.body, req.files as ProjectFiles | undefined);
   res.status(201).json({ success: true, project });
 }, WRITE_FAILURE);
 
 export const updateProject = handle(async (req, res) => {
-  const project = await projects.update(req.params.id, req.body, req.file);
+  const project = await projects.update(
+    req.params.id,
+    req.body,
+    req.files as ProjectFiles | undefined,
+  );
   res.status(200).json({ success: true, project });
 }, WRITE_FAILURE);
 

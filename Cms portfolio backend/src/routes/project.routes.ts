@@ -13,6 +13,14 @@ import {
 import { protect, requirePermission } from "../middleware/auth";
 import { upload } from "../middleware/uploadMiddleware";
 
+// Card images (the first is the thumbnail) and case study screenshots.
+// `image` is the older single thumbnail upload, still accepted.
+const projectImages = upload.fields([
+  { name: "image", maxCount: 1 },
+  { name: "cardImages", maxCount: 4 },
+  { name: "gallery", maxCount: 8 },
+]);
+
 const router = Router();
 
 // Public
@@ -32,14 +40,14 @@ router.post(
   "/create",
   protect,
   requirePermission("projects.create"),
-  upload.single("image"),
+  projectImages,
   createProject
 );
 router.put(
   "/:id",
   protect,
   requirePermission("projects.edit"),
-  upload.single("image"),
+  projectImages,
   updateProject
 );
 router.delete("/:id", protect, requirePermission("projects.delete"), deleteProject);
