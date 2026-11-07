@@ -29,10 +29,14 @@ import { broadcast } from "./sse";
 
 const REVALIDATE_TIMEOUT_MS = 3000;
 
-function frontendUrl(): string | null {
-  const raw = process.env.FRONTEND_URL?.trim();
-  if (!raw) return null;
-  return raw.endsWith("/") ? raw.slice(0, -1) : raw;
+/**
+ * The site to revalidate. FRONTEND_URL can list several origins for CORS
+ * (production and local, say); the first one is the live site.
+ */
+export function frontendUrl(): string | null {
+  const first = process.env.FRONTEND_URL?.split(",")[0]?.trim();
+  if (!first) return null;
+  return first.endsWith("/") ? first.slice(0, -1) : first;
 }
 
 async function revalidateTag(tag: string): Promise<boolean> {
