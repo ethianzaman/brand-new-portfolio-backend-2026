@@ -42,7 +42,7 @@ async function isFileInUse(publicId: string): Promise<boolean> {
     About.exists(usedIn("hero.image", "hero.resumeUrl")),
     Hero.exists(usedIn("hero.image", "hero.resumeUrl")),
     Blog.exists(usedIn("coverImage", "seo.ogImage", "content")),
-    Project.exists(usedIn("thumbnail", "seo.ogImage")),
+    Project.exists(usedIn("thumbnail", "images", "seo.ogImage", "gallery")),
     Service.exists(usedIn("seo.ogImage")),
     SkillCategory.exists(usedIn("skills.icon")),
     PageSeo.exists(usedIn("seo.ogImage")),

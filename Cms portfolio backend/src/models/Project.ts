@@ -25,7 +25,10 @@ export interface IProject extends Document {
 
   color: string;
 
+  /** The main image: first on the card and at the top of the project page. */
   thumbnail?: string;
+  /** More card images after the thumbnail, shown as a slideshow. */
+  images: string[];
 
   featured: boolean;
 
@@ -40,7 +43,22 @@ export interface IProject extends Document {
   slug?: string;
 
   seo?: ISeo;
+
+  // ── Case study, all optional: the detail page hides an empty section ──
+  goal: string;
+  features: string[];
+  /** How it's built: architecture and the reasons behind it. */
+  approach: string;
+  challenges: string;
+  outcome: string;
+  role: string;
+  year: string;
+  status: "" | "live" | "in-progress" | "archived";
+  /** Screenshots shown on the detail page, in order. */
+  gallery: string[];
 }
+
+export const PROJECT_STATUSES = ["", "live", "in-progress", "archived"] as const;
 
 const ProjectSchema = new Schema<IProject>(
   {
@@ -89,6 +107,8 @@ const ProjectSchema = new Schema<IProject>(
       default: "",
     },
 
+    images: [{ type: String, trim: true }],
+
     featured: {
       type: Boolean,
       default: false,
@@ -112,6 +132,16 @@ const ProjectSchema = new Schema<IProject>(
       type: SeoSchema,
       default: undefined,
     },
+
+    goal: { type: String, default: "", trim: true },
+    features: [{ type: String, trim: true }],
+    approach: { type: String, default: "", trim: true },
+    challenges: { type: String, default: "", trim: true },
+    outcome: { type: String, default: "", trim: true },
+    role: { type: String, default: "", trim: true },
+    year: { type: String, default: "", trim: true },
+    status: { type: String, enum: PROJECT_STATUSES, default: "" },
+    gallery: [{ type: String, trim: true }],
   },
   {
     timestamps: true,
@@ -143,3 +173,9 @@ ProjectSchema.index({ tags: 1 });
 ProjectSchema.index({ featured: 1 });
 
 export const Project = mongoose.model<IProject>("Project", ProjectSchema);
+
+
+
+
+
+
